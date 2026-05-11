@@ -1,0 +1,37 @@
+# Flutter / Dart ビルド生成物
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+
+# Flutter メタデータ（flutter create が生成するが不要）
+.metadata
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+
+# Claude Code
+.claude/
+
+# 環境設定（.env.example は管理対象）
+.env
+.env.*
+!.env.example
+
+# macOS
+.DS_Store
+
+# Android（android/.gitignore でも管理されているが念のため）
+android/local.properties
+
+# iOS（ios/.gitignore でも管理されているが念のため）
+ios/Pods/
+ios/.symlinks/
+
+# テストカバレッジ
+coverage/
