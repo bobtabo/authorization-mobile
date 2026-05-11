@@ -189,16 +189,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              '利用停止について',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.w500,
-                                                fontSize: 13,
-                                                color: Color(0xFF78350F),
-                                              ),
-                                            ),
-                                            SizedBox(height: 4),
-                                            Text(
-                                              '万が一、セキュリティ上の問題が発生した場合は、すぐにAPIアクセスを無効化できます。',
+                                              '一時的に利用を停止する場合は、下のボタンから操作できます。',
                                               style: TextStyle(
                                                 fontSize: 13,
                                                 color: Color(0xFF92400E),
