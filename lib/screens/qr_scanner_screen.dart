@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -6,7 +7,11 @@ class QRScannerScreen extends StatefulWidget {
   final ValueChanged<String> onScan;
   final VoidCallback onBack;
 
-  const QRScannerScreen({super.key, required this.onScan, required this.onBack});
+  const QRScannerScreen({
+    super.key,
+    required this.onScan,
+    required this.onBack,
+  });
 
   @override
   State<QRScannerScreen> createState() => _QRScannerScreenState();
@@ -51,7 +56,11 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                 children: [
                   IconButton(
                     onPressed: widget.onBack,
-                    icon: const Icon(Icons.close, color: Colors.white, size: 26),
+                    icon: const Icon(
+                      Icons.close,
+                      color: Colors.white,
+                      size: 26,
+                    ),
                     style: IconButton.styleFrom(
                       backgroundColor: Colors.white10,
                       shape: const CircleBorder(),
@@ -89,17 +98,43 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                           child: MobileScanner(
                             controller: _controller,
                             onDetect: _onDetect,
+                            errorBuilder: (context, error) =>
+                                _SimulatorFallback(onScan: widget.onScan),
                           ),
                         ),
                       ),
                       // 外枠（点滅）
                       Positioned.fill(
-                        child: _PulsingBorder(),
+                        child: IgnorePointer(child: _PulsingBorder()),
                       ),
                       // コーナーマーカー
                       Positioned.fill(
-                        child: _ScannerCorners(),
+                        child: IgnorePointer(child: _ScannerCorners()),
                       ),
+                      // デバッグ用テストスキャンボタン
+                      if (kDebugMode)
+                        Positioned(
+                          bottom: 12,
+                          left: 0,
+                          right: 0,
+                          child: Center(
+                            child: FilledButton.icon(
+                              onPressed: () => _SimulatorFallback.showDialog(
+                                context,
+                                onScan: widget.onScan,
+                              ),
+                              icon: const Icon(Icons.qr_code, size: 16),
+                              label: const Text('テストスキャン'),
+                              style: FilledButton.styleFrom(
+                                backgroundColor: Colors.black54,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ),
@@ -114,12 +149,77 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.white, fontSize: 15),
                   ),
-                ]
-                    .animate()
-                    .fade(delay: 300.ms, duration: 400.ms),
+                ].animate().fade(delay: 300.ms, duration: 400.ms),
               ),
             ),
             const SizedBox(height: 32),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SimulatorFallback extends StatelessWidget {
+  final ValueChanged<String> onScan;
+
+  const _SimulatorFallback({required this.onScan});
+
+  static void showDialog(
+    BuildContext context, {
+    required ValueChanged<String> onScan,
+  }) {
+    final controller = TextEditingController(
+      text:
+          'https://apis.authorization-php.dev/activate?client_id=client_test_001',
+    );
+    showAdaptiveDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('テストスキャン'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(labelText: 'QRコードの値'),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('キャンセル'),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              onScan(controller.text.trim());
+            },
+            child: const Text('スキャン'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.black87,
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.videocam_off, color: Colors.white54, size: 48),
+            const SizedBox(height: 12),
+            const Text(
+              'カメラが利用できません',
+              style: TextStyle(color: Colors.white70, fontSize: 14),
+            ),
+            const SizedBox(height: 20),
+            FilledButton.icon(
+              onPressed: () =>
+                  _SimulatorFallback.showDialog(context, onScan: onScan),
+              icon: const Icon(Icons.qr_code),
+              label: const Text('テストスキャン'),
+            ),
           ],
         ),
       ),
@@ -131,11 +231,11 @@ class _PulsingBorder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.white30, width: 4),
-        borderRadius: BorderRadius.circular(24),
-      ),
-    )
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.white30, width: 4),
+            borderRadius: BorderRadius.circular(24),
+          ),
+        )
         .animate(onPlay: (c) => c.repeat(reverse: true))
         .fade(begin: 0.3, end: 1.0, duration: 1000.ms);
   }

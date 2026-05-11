@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Authorization Mobile</string>
+	<string>AGモバイル</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -47,6 +47,8 @@
 			</array>
 		</dict>
 	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>QRコードをスキャンするためにカメラを使用します。</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

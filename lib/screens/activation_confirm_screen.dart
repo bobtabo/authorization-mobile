@@ -25,9 +25,7 @@ class ActivationConfirmScreen extends StatelessWidget {
             Container(
               decoration: const BoxDecoration(
                 color: Colors.white,
-                border: Border(
-                  bottom: BorderSide(color: Color(0xFFE5E7EB)),
-                ),
+                border: Border(bottom: BorderSide(color: Color(0xFFE5E7EB))),
               ),
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               child: Row(
@@ -35,14 +33,9 @@ class ActivationConfirmScreen extends StatelessWidget {
                   IconButton(
                     onPressed: onBack,
                     icon: const Icon(Icons.arrow_back, size: 22),
-                    style: IconButton.styleFrom(
-                      shape: const CircleBorder(),
-                    ),
+                    style: IconButton.styleFrom(shape: const CircleBorder()),
                   ),
-                  const Text(
-                    'アクティベーション確認',
-                    style: TextStyle(fontSize: 18),
-                  ),
+                  const Text('利用開始の確認', style: TextStyle(fontSize: 18)),
                 ],
               ),
             ),
@@ -60,7 +53,7 @@ class ActivationConfirmScreen extends StatelessWidget {
                       backgroundColor: const Color(0xFFEFF6FF),
                       borderColor: const Color(0xFFBFDBFE),
                       title: 'QRコードを読み取りました',
-                      subtitle: '以下のクライアントを有効化します',
+                      subtitle: '',
                       titleColor: const Color(0xFF1E3A5F),
                       subtitleColor: const Color(0xFF1D4ED8),
                     ),
@@ -174,22 +167,19 @@ class ActivationConfirmScreen extends StatelessWidget {
                           ),
                           children: [
                             TextSpan(
-                              text: '注意: ',
+                              text: '注意：',
                               style: TextStyle(fontWeight: FontWeight.w600),
                             ),
                             TextSpan(
                               text:
-                                  'このクライアントを有効化すると、アクセストークンが発行されます。トークンは一度だけ表示されますので、必ず安全な場所に保管してください。',
+                                  '利用開始すると、アクセストークンが発行されます。トークンは一度だけ表示されますので、必ず安全な場所に保管してください。',
                             ),
                           ],
                         ),
                       ),
                     ),
                   ],
-                )
-                    .animate()
-                    .fade(duration: 300.ms)
-                    .slideY(begin: 0.2, end: 0),
+                ).animate().fade(duration: 300.ms).slideY(begin: 0.2, end: 0),
               ),
             ),
             // フッターボタン
@@ -197,33 +187,32 @@ class ActivationConfirmScreen extends StatelessWidget {
               padding: const EdgeInsets.all(24),
               decoration: const BoxDecoration(
                 color: Colors.white,
-                border: Border(
-                  top: BorderSide(color: Color(0xFFE5E7EB)),
-                ),
+                border: Border(top: BorderSide(color: Color(0xFFE5E7EB))),
               ),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: onActivate,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF4F46E5),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 18),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    elevation: 2,
-                    textStyle: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  child: const Text('利用開始（Activeにする）'),
-                ),
-              )
-                  .animate()
-                  .fade(delay: 200.ms, duration: 300.ms)
-                  .slideY(begin: 0.3, end: 0),
+              child:
+                  SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: onActivate,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF4F46E5),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 18),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            elevation: 2,
+                            textStyle: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          child: const Text('利用開始する'),
+                        ),
+                      )
+                      .animate()
+                      .fade(delay: 200.ms, duration: 300.ms)
+                      .slideY(begin: 0.3, end: 0),
             ),
           ],
         ),
@@ -278,11 +267,13 @@ class _InfoBanner extends StatelessWidget {
                   color: titleColor,
                 ),
               ),
-              const SizedBox(height: 2),
-              Text(
-                subtitle,
-                style: TextStyle(fontSize: 13, color: subtitleColor),
-              ),
+              if (subtitle.isNotEmpty) ...[
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: TextStyle(fontSize: 13, color: subtitleColor),
+                ),
+              ],
             ],
           ),
         ],
@@ -317,10 +308,7 @@ class _InfoRow extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: Color(0xFF6B7280),
-                ),
+                style: const TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
               ),
               const SizedBox(height: 4),
               Text(
