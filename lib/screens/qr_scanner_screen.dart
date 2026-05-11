@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -179,14 +178,12 @@ class _SimulatorFallback extends StatelessWidget {
               'カメラが利用できません',
               style: TextStyle(color: Colors.white70, fontSize: 14),
             ),
-            if (kDebugMode) ...[
-              const SizedBox(height: 20),
-              FilledButton.icon(
-                onPressed: () => _simulateScan(context),
-                icon: const Icon(Icons.qr_code),
-                label: const Text('テストスキャン'),
-              ),
-            ],
+            const SizedBox(height: 20),
+            FilledButton.icon(
+              onPressed: () => _simulateScan(context),
+              icon: const Icon(Icons.qr_code),
+              label: const Text('テストスキャン'),
+            ),
           ],
         ),
       ),
