@@ -26,10 +26,7 @@ class _BackendSelectorSheet extends StatelessWidget {
   final BackendOption selected;
   final Future<void> Function(BackendOption) onSelect;
 
-  const _BackendSelectorSheet({
-    required this.selected,
-    required this.onSelect,
-  });
+  const _BackendSelectorSheet({required this.selected, required this.onSelect});
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +69,10 @@ class _BackendSelectorSheet extends StatelessWidget {
                           ),
                         ),
                         trailing: selected.slug == backend.slug
-                            ? const Icon(Icons.check_circle, color: Color(0xFF4F46E5))
+                            ? const Icon(
+                                Icons.check_circle,
+                                color: Color(0xFF4F46E5),
+                              )
                             : null,
                         onTap: () => onSelect(backend),
                       ),

@@ -62,8 +62,9 @@ void main() {
     expect(closed, isTrue);
   });
 
-  testWidgets('canceling close dialog dismisses it without calling onClose',
-      (tester) async {
+  testWidgets('canceling close dialog dismisses it without calling onClose', (
+    tester,
+  ) async {
     var closed = false;
     await tester.pumpWidget(buildSubject(onClose: () => closed = true));
     await tester.pumpAndSettle();

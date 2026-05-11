@@ -6,8 +6,9 @@ import 'package:authorization_mobile/screens/splash_screen.dart';
 void main() {
   // SplashScreen has a repeat animation (_floatController) so pumpAndSettle
   // would time out — use pump(Duration) instead.
-  testWidgets('SplashScreen shows scan button and backend selector',
-      (tester) async {
+  testWidgets('SplashScreen shows scan button and backend selector', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       MaterialApp(
         home: SplashScreen(

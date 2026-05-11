@@ -11,10 +11,7 @@ void main() {
     status: ClientStatus.preparing,
   );
 
-  Widget buildSubject({
-    VoidCallback? onActivate,
-    VoidCallback? onBack,
-  }) {
+  Widget buildSubject({VoidCallback? onActivate, VoidCallback? onBack}) {
     return MaterialApp(
       home: ActivationConfirmScreen(
         clientInfo: testClient,

@@ -7,7 +7,11 @@ class QRScannerScreen extends StatefulWidget {
   final ValueChanged<String> onScan;
   final VoidCallback onBack;
 
-  const QRScannerScreen({super.key, required this.onScan, required this.onBack});
+  const QRScannerScreen({
+    super.key,
+    required this.onScan,
+    required this.onBack,
+  });
 
   @override
   State<QRScannerScreen> createState() => _QRScannerScreenState();
@@ -52,7 +56,11 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                 children: [
                   IconButton(
                     onPressed: widget.onBack,
-                    icon: const Icon(Icons.close, color: Colors.white, size: 26),
+                    icon: const Icon(
+                      Icons.close,
+                      color: Colors.white,
+                      size: 26,
+                    ),
                     style: IconButton.styleFrom(
                       backgroundColor: Colors.white10,
                       shape: const CircleBorder(),
@@ -141,9 +149,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.white, fontSize: 15),
                   ),
-                ]
-                    .animate()
-                    .fade(delay: 300.ms, duration: 400.ms),
+                ].animate().fade(delay: 300.ms, duration: 400.ms),
               ),
             ),
             const SizedBox(height: 32),
@@ -164,7 +170,8 @@ class _SimulatorFallback extends StatelessWidget {
     required ValueChanged<String> onScan,
   }) {
     final controller = TextEditingController(
-      text: 'https://apis.authorization-php.dev/activate?client_id=client_test_001',
+      text:
+          'https://apis.authorization-php.dev/activate?client_id=client_test_001',
     );
     showAdaptiveDialog<void>(
       context: context,
@@ -208,10 +215,8 @@ class _SimulatorFallback extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             FilledButton.icon(
-              onPressed: () => _SimulatorFallback.showDialog(
-                context,
-                onScan: onScan,
-              ),
+              onPressed: () =>
+                  _SimulatorFallback.showDialog(context, onScan: onScan),
               icon: const Icon(Icons.qr_code),
               label: const Text('テストスキャン'),
             ),
@@ -226,11 +231,11 @@ class _PulsingBorder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.white30, width: 4),
-        borderRadius: BorderRadius.circular(24),
-      ),
-    )
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.white30, width: 4),
+            borderRadius: BorderRadius.circular(24),
+          ),
+        )
         .animate(onPlay: (c) => c.repeat(reverse: true))
         .fade(begin: 0.3, end: 1.0, duration: 1000.ms);
   }

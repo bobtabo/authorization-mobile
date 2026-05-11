@@ -27,9 +27,7 @@ class AuthorizationGatewayApp extends StatelessWidget {
       title: 'Authorization Gateway',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF4F46E5),
-        ),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF4F46E5)),
         useMaterial3: true,
       ),
       home: const AppNavigator(),
@@ -177,49 +175,52 @@ class _AppNavigatorState extends State<AppNavigator> {
   Widget build(BuildContext context) {
     return switch (_currentScreen) {
       AppScreen.splash => SplashScreen(
-          onStart: _handleStartScan,
-          selectedBackend: _selectedBackend,
-          onSelectBackend: _handleSelectBackend,
-        ),
+        onStart: _handleStartScan,
+        selectedBackend: _selectedBackend,
+        onSelectBackend: _handleSelectBackend,
+      ),
       AppScreen.scanner => QRScannerScreen(
-          onScan: _handleQRScan,
-          onBack: _handleBackToSplash,
-        ),
-      AppScreen.confirm => _clientInfo != null
-          ? ActivationConfirmScreen(
-              clientInfo: _clientInfo!,
-              onActivate: _handleActivate,
-              onBack: _handleBackToScanner,
-            )
-          : SplashScreen(
-              onStart: _handleStartScan,
-              selectedBackend: _selectedBackend,
-              onSelectBackend: _handleSelectBackend,
-            ),
-      AppScreen.token => _clientInfo != null
-          ? TokenDisplayScreen(
-              token: _token,
-              clientName: _clientInfo!.name,
-              onClose: _handleCloseToken,
-            )
-          : SplashScreen(
-              onStart: _handleStartScan,
-              selectedBackend: _selectedBackend,
-              onSelectBackend: _handleSelectBackend,
-            ),
-      AppScreen.home => _clientInfo != null
-          ? HomeScreen(
-              clientInfo: _clientInfo!,
-              onSuspend: _handleSuspend,
-              onResume: _handleResume,
-              selectedBackend: _selectedBackend,
-              onSelectBackend: _handleSelectBackend,
-            )
-          : SplashScreen(
-              onStart: _handleStartScan,
-              selectedBackend: _selectedBackend,
-              onSelectBackend: _handleSelectBackend,
-            ),
+        onScan: _handleQRScan,
+        onBack: _handleBackToSplash,
+      ),
+      AppScreen.confirm =>
+        _clientInfo != null
+            ? ActivationConfirmScreen(
+                clientInfo: _clientInfo!,
+                onActivate: _handleActivate,
+                onBack: _handleBackToScanner,
+              )
+            : SplashScreen(
+                onStart: _handleStartScan,
+                selectedBackend: _selectedBackend,
+                onSelectBackend: _handleSelectBackend,
+              ),
+      AppScreen.token =>
+        _clientInfo != null
+            ? TokenDisplayScreen(
+                token: _token,
+                clientName: _clientInfo!.name,
+                onClose: _handleCloseToken,
+              )
+            : SplashScreen(
+                onStart: _handleStartScan,
+                selectedBackend: _selectedBackend,
+                onSelectBackend: _handleSelectBackend,
+              ),
+      AppScreen.home =>
+        _clientInfo != null
+            ? HomeScreen(
+                clientInfo: _clientInfo!,
+                onSuspend: _handleSuspend,
+                onResume: _handleResume,
+                selectedBackend: _selectedBackend,
+                onSelectBackend: _handleSelectBackend,
+              )
+            : SplashScreen(
+                onStart: _handleStartScan,
+                selectedBackend: _selectedBackend,
+                onSelectBackend: _handleSelectBackend,
+              ),
     };
   }
 }

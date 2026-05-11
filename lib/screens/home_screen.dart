@@ -126,13 +126,22 @@ class _HomeScreenState extends State<HomeScreen> {
                             children: [
                               const Text(
                                 'Backend:',
-                                style: TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Color(0xFF6B7280),
+                                ),
                               ),
                               const SizedBox(width: 8),
                               DropdownButton<BackendOption>(
                                 value: widget.selectedBackend,
-                                style: const TextStyle(fontSize: 13, color: Color(0xFF1F2937)),
-                                underline: Container(height: 1, color: const Color(0xFFE0E7FF)),
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  color: Color(0xFF1F2937),
+                                ),
+                                underline: Container(
+                                  height: 1,
+                                  color: const Color(0xFFE0E7FF),
+                                ),
                                 isDense: true,
                                 items: kBackends
                                     .map(
@@ -161,78 +170,83 @@ class _HomeScreenState extends State<HomeScreen> {
                           // 利用中の場合のみ停止ボタン表示
                           if (widget.clientInfo.status == ClientStatus.active)
                             Column(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(16),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFFFFBEB),
-                                    border: Border.all(
-                                      color: const Color(0xFFFCD34D),
-                                    ),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: const [
-                                      Icon(
-                                        Icons.warning_amber_rounded,
-                                        color: Color(0xFFD97706),
-                                        size: 20,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(16),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFFFFBEB),
+                                        border: Border.all(
+                                          color: const Color(0xFFFCD34D),
+                                        ),
+                                        borderRadius: BorderRadius.circular(12),
                                       ),
-                                      SizedBox(width: 12),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              '一時的に利用を停止する場合は、下のボタンから操作できます。',
-                                              style: TextStyle(
-                                                fontSize: 13,
-                                                color: Color(0xFF92400E),
-                                              ),
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: const [
+                                          Icon(
+                                            Icons.warning_amber_rounded,
+                                            color: Color(0xFFD97706),
+                                            size: 20,
+                                          ),
+                                          SizedBox(width: 12),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  '一時的に利用を停止する場合は、下のボタンから操作できます。',
+                                                  style: TextStyle(
+                                                    fontSize: 13,
+                                                    color: Color(0xFF92400E),
+                                                  ),
+                                                ),
+                                              ],
                                             ),
-                                          ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    SizedBox(
+                                      width: double.infinity,
+                                      child: ElevatedButton.icon(
+                                        onPressed: () => setState(
+                                          () => _showSuspendDialog = true,
+                                        ),
+                                        icon: const Icon(
+                                          Icons.warning_amber_rounded,
+                                          size: 24,
+                                        ),
+                                        label: const Text('利用停止'),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: const Color(
+                                            0xFFDC2626,
+                                          ),
+                                          foregroundColor: Colors.white,
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 18,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
+                                          ),
+                                          textStyle: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w500,
+                                          ),
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                SizedBox(
-                                  width: double.infinity,
-                                  child: ElevatedButton.icon(
-                                    onPressed: () => setState(
-                                      () => _showSuspendDialog = true,
                                     ),
-                                    icon: const Icon(
-                                      Icons.warning_amber_rounded,
-                                      size: 24,
-                                    ),
-                                    label: const Text('利用停止'),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFFDC2626),
-                                      foregroundColor: Colors.white,
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 18,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                      ),
-                                      textStyle: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            )
+                                  ],
+                                )
                                 .animate()
                                 .fade(delay: 200.ms, duration: 300.ms)
                                 .slideY(begin: 0.2, end: 0),
-                          if (widget.clientInfo.status == ClientStatus.suspended)
+                          if (widget.clientInfo.status ==
+                              ClientStatus.suspended)
                             Column(
                               children: [
                                 Container(
@@ -245,7 +259,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: const [
                                       Icon(
                                         Icons.warning_amber_rounded,
@@ -345,188 +360,191 @@ class _StatusCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.white,
-            Color(0xFFF5F3FF),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFE0E7FF).withValues(alpha: 0.5)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 24,
-            offset: const Offset(0, 4),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Colors.white, Color(0xFFF5F3FF)],
+            ),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: const Color(0xFFE0E7FF).withValues(alpha: 0.5),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 24,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            // クライアント名
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
               children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
+                // クライアント名
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.8),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: const Color(0xFFE0E7FF).withValues(alpha: 0.5),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.8),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: const Color(
+                                0xFFE0E7FF,
+                              ).withValues(alpha: 0.5),
+                            ),
+                          ),
+                          child: const Icon(
+                            Icons.business,
+                            color: Color(0xFF4F46E5),
+                            size: 24,
+                          ),
                         ),
-                      ),
-                      child: const Icon(
-                        Icons.business,
-                        color: Color(0xFF4F46E5),
-                        size: 24,
-                      ),
+                        const SizedBox(width: 10),
+                        const Text(
+                          'クライアント名',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Color(0xFF6B7280),
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(height: 10),
+                    Text(
+                      clientInfo.name,
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF1F2937),
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                const Divider(color: Color(0xFFE0E7FF)),
+                const SizedBox(height: 24),
+                // 識別名
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.6),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: const Color(0xFFE0E7FF).withValues(alpha: 0.5),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: const [
+                          Icon(
+                            Icons.label_outline,
+                            color: Color(0xFF818CF8),
+                            size: 16,
+                          ),
+                          SizedBox(width: 6),
+                          Text(
+                            '識別名',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Color(0xFF6B7280),
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        clientInfo.identifier,
+                        style: const TextStyle(
+                          fontFamily: 'monospace',
+                          fontSize: 13,
+                          color: Color(0xFF374151),
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+                const Divider(color: Color(0xFFE0E7FF)),
+                const SizedBox(height: 24),
+                // ステータス
+                Column(
+                  children: [
                     const Text(
-                      'クライアント名',
+                      '現在のステータス',
                       style: TextStyle(
                         fontSize: 11,
                         color: Color(0xFF6B7280),
                         letterSpacing: 1.2,
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  clientInfo.name,
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF1F2937),
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            const Divider(color: Color(0xFFE0E7FF)),
-            const SizedBox(height: 24),
-            // 識別名
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.6),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: const Color(0xFFE0E7FF).withValues(alpha: 0.5),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: const [
-                      Icon(
-                        Icons.label_outline,
-                        color: Color(0xFF818CF8),
-                        size: 16,
+                    const SizedBox(height: 20),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 40,
+                        vertical: 20,
                       ),
-                      SizedBox(width: 6),
-                      Text(
-                        '識別名',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Color(0xFF6B7280),
-                          letterSpacing: 1.2,
+                      decoration: BoxDecoration(
+                        color: statusBgColor(clientInfo.status),
+                        border: Border.all(
+                          color: statusBorderColor(clientInfo.status),
+                          width: 2,
                         ),
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: statusDotColor(
+                              clientInfo.status,
+                            ).withValues(alpha: 0.2),
+                            blurRadius: 16,
+                            spreadRadius: 4,
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    clientInfo.identifier,
-                    style: const TextStyle(
-                      fontFamily: 'monospace',
-                      fontSize: 13,
-                      color: Color(0xFF374151),
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-            const Divider(color: Color(0xFFE0E7FF)),
-            const SizedBox(height: 24),
-            // ステータス
-            Column(
-              children: [
-                const Text(
-                  '現在のステータス',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Color(0xFF6B7280),
-                    letterSpacing: 1.2,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 40,
-                    vertical: 20,
-                  ),
-                  decoration: BoxDecoration(
-                    color: statusBgColor(clientInfo.status),
-                    border: Border.all(
-                      color: statusBorderColor(clientInfo.status),
-                      width: 2,
-                    ),
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: statusDotColor(clientInfo.status)
-                            .withValues(alpha: 0.2),
-                        blurRadius: 16,
-                        spreadRadius: 4,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _PulsingDot(color: statusDotColor(clientInfo.status)),
+                          const SizedBox(width: 16),
+                          Text(
+                            clientInfo.status.label,
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: statusTextColor(clientInfo.status),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _PulsingDot(color: statusDotColor(clientInfo.status)),
-                      const SizedBox(width: 16),
-                      Text(
-                        clientInfo.status.label,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: statusTextColor(clientInfo.status),
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-                    .animate()
-                    .scale(
+                    ).animate().scale(
                       begin: const Offset(0, 0),
                       end: const Offset(1, 1),
                       duration: 400.ms,
                       curve: Curves.elasticOut,
                     ),
+                  ],
+                ),
               ],
             ),
-          ],
-        ),
-      ),
-    )
+          ),
+        )
         .animate()
         .scale(
           begin: const Offset(0.95, 0.95),
@@ -544,10 +562,10 @@ class _PulsingDot extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 20,
-      height: 20,
-      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-    )
+          width: 20,
+          height: 20,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        )
         .animate(onPlay: (c) => c.repeat(reverse: true))
         .fade(begin: 0.4, end: 1.0, duration: 800.ms);
   }
@@ -568,108 +586,111 @@ class _SuspendDialog extends StatelessWidget {
         child: Center(
           child: GestureDetector(
             onTap: () {},
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 24),
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Icon(
-                        Icons.warning_amber_rounded,
-                        color: Color(0xFFEF4444),
-                        size: 24,
+            child:
+                Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 24),
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
                       ),
-                      SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '利用停止しますか？',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: const [
+                              Icon(
+                                Icons.warning_amber_rounded,
+                                color: Color(0xFFEF4444),
+                                size: 24,
                               ),
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              'APIアクセスを即座に無効化します。',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Color(0xFF4B5563),
+                              SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '利用停止しますか？',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      'APIアクセスを即座に無効化します。',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: Color(0xFF4B5563),
+                                      ),
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      'この操作により、すべてのAPI呼び出しが拒否されます。',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: Color(0xFFDC2626),
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              'この操作により、すべてのAPI呼び出しが拒否されます。',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Color(0xFFDC2626),
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: onCancel,
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            side: BorderSide.none,
-                            backgroundColor: const Color(0xFFF3F4F6),
-                            foregroundColor: const Color(0xFF374151),
+                            ],
                           ),
-                          child: const Text('キャンセル'),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: onConfirm,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFDC2626),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
+                          const SizedBox(height: 20),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: OutlinedButton(
+                                  onPressed: onCancel,
+                                  style: OutlinedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 14,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    side: BorderSide.none,
+                                    backgroundColor: const Color(0xFFF3F4F6),
+                                    foregroundColor: const Color(0xFF374151),
+                                  ),
+                                  child: const Text('キャンセル'),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: onConfirm,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFFDC2626),
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 14,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  child: const Text('停止する'),
+                                ),
+                              ),
+                            ],
                           ),
-                          child: const Text('停止する'),
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
-                ],
-              ),
-            )
-                .animate()
-                .scale(
-                  begin: const Offset(0.9, 0.9),
-                  end: const Offset(1, 1),
-                  duration: 200.ms,
-                )
-                .fade(duration: 200.ms),
+                    )
+                    .animate()
+                    .scale(
+                      begin: const Offset(0.9, 0.9),
+                      end: const Offset(1, 1),
+                      duration: 200.ms,
+                    )
+                    .fade(duration: 200.ms),
           ),
         ),
-      )
-          .animate()
-          .fade(duration: 150.ms),
+      ).animate().fade(duration: 150.ms),
     );
   }
 }

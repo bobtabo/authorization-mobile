@@ -82,8 +82,11 @@ void main() {
     await tester.ensureVisible(find.text('利用停止'));
     await tester.tap(find.text('利用停止'));
     await tester.pump(); // trigger setState and build dialog
-    await tester.pump(const Duration(milliseconds: 300)); // run entry animations
-    await tester.pump(); // drain zero-duration timers created during animation setup
+    await tester.pump(
+      const Duration(milliseconds: 300),
+    ); // run entry animations
+    await tester
+        .pump(); // drain zero-duration timers created during animation setup
 
     expect(find.text('利用停止しますか？'), findsOneWidget);
   });
@@ -91,10 +94,7 @@ void main() {
   testWidgets('confirming suspend calls onSuspend', (tester) async {
     var suspended = false;
     await tester.pumpWidget(
-      buildSubject(
-        clientInfo: activeClient,
-        onSuspend: () => suspended = true,
-      ),
+      buildSubject(clientInfo: activeClient, onSuspend: () => suspended = true),
     );
     await tester.pump(const Duration(seconds: 1));
 
@@ -109,13 +109,12 @@ void main() {
     expect(suspended, isTrue);
   });
 
-  testWidgets('canceling suspend dialog does not call onSuspend', (tester) async {
+  testWidgets('canceling suspend dialog does not call onSuspend', (
+    tester,
+  ) async {
     var suspended = false;
     await tester.pumpWidget(
-      buildSubject(
-        clientInfo: activeClient,
-        onSuspend: () => suspended = true,
-      ),
+      buildSubject(clientInfo: activeClient, onSuspend: () => suspended = true),
     );
     await tester.pump(const Duration(seconds: 1));
 
@@ -134,10 +133,7 @@ void main() {
   testWidgets('resume button calls onResume', (tester) async {
     var resumed = false;
     await tester.pumpWidget(
-      buildSubject(
-        clientInfo: suspendedClient,
-        onResume: () => resumed = true,
-      ),
+      buildSubject(clientInfo: suspendedClient, onResume: () => resumed = true),
     );
     await tester.pump(const Duration(seconds: 1));
 

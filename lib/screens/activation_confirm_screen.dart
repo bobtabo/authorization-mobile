@@ -25,9 +25,7 @@ class ActivationConfirmScreen extends StatelessWidget {
             Container(
               decoration: const BoxDecoration(
                 color: Colors.white,
-                border: Border(
-                  bottom: BorderSide(color: Color(0xFFE5E7EB)),
-                ),
+                border: Border(bottom: BorderSide(color: Color(0xFFE5E7EB))),
               ),
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               child: Row(
@@ -35,14 +33,9 @@ class ActivationConfirmScreen extends StatelessWidget {
                   IconButton(
                     onPressed: onBack,
                     icon: const Icon(Icons.arrow_back, size: 22),
-                    style: IconButton.styleFrom(
-                      shape: const CircleBorder(),
-                    ),
+                    style: IconButton.styleFrom(shape: const CircleBorder()),
                   ),
-                  const Text(
-                    '利用開始の確認',
-                    style: TextStyle(fontSize: 18),
-                  ),
+                  const Text('利用開始の確認', style: TextStyle(fontSize: 18)),
                 ],
               ),
             ),
@@ -186,10 +179,7 @@ class ActivationConfirmScreen extends StatelessWidget {
                       ),
                     ),
                   ],
-                )
-                    .animate()
-                    .fade(duration: 300.ms)
-                    .slideY(begin: 0.2, end: 0),
+                ).animate().fade(duration: 300.ms).slideY(begin: 0.2, end: 0),
               ),
             ),
             // フッターボタン
@@ -197,33 +187,32 @@ class ActivationConfirmScreen extends StatelessWidget {
               padding: const EdgeInsets.all(24),
               decoration: const BoxDecoration(
                 color: Colors.white,
-                border: Border(
-                  top: BorderSide(color: Color(0xFFE5E7EB)),
-                ),
+                border: Border(top: BorderSide(color: Color(0xFFE5E7EB))),
               ),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: onActivate,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF4F46E5),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 18),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    elevation: 2,
-                    textStyle: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  child: const Text('利用開始する'),
-                ),
-              )
-                  .animate()
-                  .fade(delay: 200.ms, duration: 300.ms)
-                  .slideY(begin: 0.3, end: 0),
+              child:
+                  SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: onActivate,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF4F46E5),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 18),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            elevation: 2,
+                            textStyle: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          child: const Text('利用開始する'),
+                        ),
+                      )
+                      .animate()
+                      .fade(delay: 200.ms, duration: 300.ms)
+                      .slideY(begin: 0.3, end: 0),
             ),
           ],
         ),
@@ -319,10 +308,7 @@ class _InfoRow extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: Color(0xFF6B7280),
-                ),
+                style: const TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
               ),
               const SizedBox(height: 4),
               Text(
