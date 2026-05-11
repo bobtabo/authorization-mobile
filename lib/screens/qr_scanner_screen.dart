@@ -90,7 +90,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                           child: MobileScanner(
                             controller: _controller,
                             onDetect: _onDetect,
-                            errorBuilder: (context, error, child) =>
+                            errorBuilder: (context, error) =>
                                 _SimulatorFallback(onScan: widget.onScan),
                           ),
                         ),
