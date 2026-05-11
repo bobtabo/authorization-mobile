@@ -93,6 +93,7 @@ class _SplashScreenState extends State<SplashScreen>
                           color: Colors.white,
                           fontSize: defaultTargetPlatform == TargetPlatform.android ? 22 : 28,
                           fontWeight: FontWeight.w400,
+                          decoration: TextDecoration.none,
                         ),
                       )
                           .animate()
