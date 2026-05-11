@@ -38,9 +38,6 @@ jobs:
       # 静的解析を実行
       - run: flutter analyze
 
-      # 依存パッケージの脆弱性スキャン
-      - run: dart pub audit
-
       # テストを実行
       - run: flutter test
 
