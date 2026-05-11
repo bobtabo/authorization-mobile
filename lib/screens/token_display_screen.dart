@@ -32,7 +32,15 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
   }
 
   void _handleShare() {
-    Share.share(widget.token);
+    final size = MediaQuery.of(context).size;
+    Share.share(
+      widget.token,
+      sharePositionOrigin: Rect.fromCenter(
+        center: Offset(size.width / 2, size.height / 2),
+        width: 1,
+        height: 1,
+      ),
+    );
   }
 
   void _handleClose() {
