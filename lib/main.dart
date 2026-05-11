@@ -113,7 +113,7 @@ class _AppNavigatorState extends State<AppNavigator> {
 
     // URLでない場合はモックデータで確認画面へ
     const mockClientInfo = ClientInfo(
-      name: '株式会社サンプル',
+      name: '株式会社モックデータ商事',
       identifier: 'client_2026051_sample_corp',
       email: 'admin@sample-corp.jp',
       status: ClientStatus.preparing,

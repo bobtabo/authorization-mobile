@@ -352,36 +352,42 @@ class _StatusCard extends StatelessWidget {
           children: [
             // クライアント名
             Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.8),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: const Color(0xFFE0E7FF).withValues(alpha: 0.5),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.8),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: const Color(0xFFE0E7FF).withValues(alpha: 0.5),
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.business,
+                        color: Color(0xFF4F46E5),
+                        size: 24,
+                      ),
                     ),
-                  ),
-                  child: const Icon(
-                    Icons.business,
-                    color: Color(0xFF4F46E5),
-                    size: 32,
-                  ),
+                    const SizedBox(width: 10),
+                    const Text(
+                      'クライアント名',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Color(0xFF6B7280),
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 16),
-                const Text(
-                  'クライアント名',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Color(0xFF6B7280),
-                    letterSpacing: 1.2,
-                  ),
-                ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 10),
                 Text(
                   clientInfo.name,
                   style: const TextStyle(
-                    fontSize: 24,
+                    fontSize: 22,
                     fontWeight: FontWeight.w500,
                     color: Color(0xFF1F2937),
                   ),
@@ -482,7 +488,7 @@ class _StatusCard extends StatelessWidget {
                       Text(
                         clientInfo.status.label,
                         style: TextStyle(
-                          fontSize: 36,
+                          fontSize: 20,
                           fontWeight: FontWeight.bold,
                           color: statusTextColor(clientInfo.status),
                         ),
