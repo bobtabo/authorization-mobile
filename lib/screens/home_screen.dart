@@ -3,7 +3,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../config/backends.dart';
 import '../models/client_info.dart';
-import '../widgets/backend_selector.dart';
 
 class HomeScreen extends StatefulWidget {
   final ClientInfo clientInfo;
@@ -101,34 +100,47 @@ class _HomeScreenState extends State<HomeScreen> {
                       vertical: 12,
                     ),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            SvgPicture.asset(
-                              'assets/icon.svg',
-                              width: 32,
-                              height: 32,
-                            ),
-                            const SizedBox(width: 12),
-                            const Text(
-                              'Authorization Gateway',
-                              style: TextStyle(fontSize: 18),
-                            ),
-                          ],
+                        SvgPicture.asset(
+                          'assets/icon.svg',
+                          width: 32,
+                          height: 32,
                         ),
-                        TextButton.icon(
-                          onPressed: () => showBackendSelector(
-                            context,
-                            selected: widget.selectedBackend,
-                            onSelect: widget.onSelectBackend,
-                          ),
-                          icon: const Icon(Icons.settings, size: 18),
-                          label: Text(widget.selectedBackend.name),
-                          style: TextButton.styleFrom(
-                            foregroundColor: const Color(0xFF4F46E5),
-                            textStyle: const TextStyle(fontSize: 13),
-                          ),
+                        const SizedBox(width: 12),
+                        const Text(
+                          'Authorization Gateway',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // バックエンド選択
+                  Container(
+                    color: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Row(
+                      children: [
+                        const Text(
+                          'Backend:',
+                          style: TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
+                        ),
+                        const SizedBox(width: 8),
+                        DropdownButton<BackendOption>(
+                          value: widget.selectedBackend,
+                          style: const TextStyle(fontSize: 13, color: Color(0xFF1F2937)),
+                          underline: Container(height: 1, color: const Color(0xFFE0E7FF)),
+                          isDense: true,
+                          items: kBackends
+                              .map(
+                                (b) => DropdownMenuItem(
+                                  value: b,
+                                  child: Text(b.name),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (b) {
+                            if (b != null) widget.onSelectBackend(b);
+                          },
                         ),
                       ],
                     ),
@@ -364,7 +376,7 @@ class _StatusCard extends StatelessWidget {
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: const EdgeInsets.all(20),
         child: Column(
           children: [
             // クライアント名
