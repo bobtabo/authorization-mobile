@@ -123,31 +123,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       padding: const EdgeInsets.all(24),
                       child: Column(
                         children: [
-                          // タイトル
-                          const Column(
-                            children: [
-                              Text(
-                                '認証ステータス',
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.w500,
-                                  color: Color(0xFF1F2937),
-                                ),
-                              ),
-                              SizedBox(height: 4),
-                              Text(
-                                '現在の認可状態',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Color(0xFF6B7280),
-                                ),
-                              ),
-                            ],
-                          )
-                              .animate()
-                              .fade(duration: 300.ms)
-                              .slideY(begin: 0.2, end: 0),
-                          const SizedBox(height: 24),
                           // ステータスカード
                           _StatusCard(
                             clientInfo: widget.clientInfo,
