@@ -88,7 +88,7 @@ class _AppNavigatorState extends State<AppNavigator> {
     final clientInfo = ClientInfo(
       name: '株式会社モックデータ商事',
       identifier: clientId,
-      email: '',
+      email: 'example@gmail.com',
       status: ClientStatus.preparing,
     );
 
@@ -115,7 +115,7 @@ class _AppNavigatorState extends State<AppNavigator> {
     const mockClientInfo = ClientInfo(
       name: '株式会社モックデータ商事',
       identifier: 'client_2026051_sample_corp',
-      email: 'admin@sample-corp.jp',
+      email: 'example@gmail.com',
       status: ClientStatus.preparing,
     );
     setState(() {
