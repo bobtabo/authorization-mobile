@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -102,6 +103,30 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                       Positioned.fill(
                         child: IgnorePointer(child: _ScannerCorners()),
                       ),
+                      // デバッグ用テストスキャンボタン
+                      if (kDebugMode)
+                        Positioned(
+                          bottom: 12,
+                          left: 0,
+                          right: 0,
+                          child: Center(
+                            child: FilledButton.icon(
+                              onPressed: () => _SimulatorFallback.showDialog(
+                                context,
+                                onScan: widget.onScan,
+                              ),
+                              icon: const Icon(Icons.qr_code, size: 16),
+                              label: const Text('テストスキャン'),
+                              style: FilledButton.styleFrom(
+                                backgroundColor: Colors.black54,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ),
@@ -134,14 +159,17 @@ class _SimulatorFallback extends StatelessWidget {
 
   const _SimulatorFallback({required this.onScan});
 
-  void _simulateScan(BuildContext context) {
+  static void showDialog(
+    BuildContext context, {
+    required ValueChanged<String> onScan,
+  }) {
     final controller = TextEditingController(
       text: 'https://apis.authorization-php.dev/activate?client_id=client_test_001',
     );
-    showDialog<void>(
+    showAdaptiveDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('QRスキャン（シミュレーター）'),
+        title: const Text('テストスキャン'),
         content: TextField(
           controller: controller,
           decoration: const InputDecoration(labelText: 'QRコードの値'),
@@ -180,7 +208,10 @@ class _SimulatorFallback extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             FilledButton.icon(
-              onPressed: () => _simulateScan(context),
+              onPressed: () => _SimulatorFallback.showDialog(
+                context,
+                onScan: onScan,
+              ),
               icon: const Icon(Icons.qr_code),
               label: const Text('テストスキャン'),
             ),
