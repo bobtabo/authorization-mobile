@@ -147,6 +147,12 @@ class _AppNavigatorState extends State<AppNavigator> {
     });
   }
 
+  void _handleResume() {
+    setState(() {
+      _clientInfo = _clientInfo?.copyWith(status: ClientStatus.active);
+    });
+  }
+
   void _handleBackToSplash() {
     setState(() => _currentScreen = AppScreen.splash);
   }
@@ -181,6 +187,7 @@ class _AppNavigatorState extends State<AppNavigator> {
           ? HomeScreen(
               clientInfo: _clientInfo!,
               onSuspend: _handleSuspend,
+              onResume: _handleResume,
             )
           : SplashScreen(onStart: _handleStartScan),
     };

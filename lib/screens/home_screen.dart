@@ -6,11 +6,13 @@ import '../models/client_info.dart';
 class HomeScreen extends StatefulWidget {
   final ClientInfo clientInfo;
   final VoidCallback onSuspend;
+  final VoidCallback onResume;
 
   const HomeScreen({
     super.key,
     required this.clientInfo,
     required this.onSuspend,
+    required this.onResume,
   });
 
   @override
@@ -206,50 +208,76 @@ class _HomeScreenState extends State<HomeScreen> {
                                 .fade(delay: 200.ms, duration: 300.ms)
                                 .slideY(begin: 0.2, end: 0),
                           if (widget.clientInfo.status == ClientStatus.suspended)
-                            Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFFEF2F2),
-                                border: Border.all(
-                                  color: const Color(0xFFFCA5A5),
-                                ),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: const [
-                                  Icon(
-                                    Icons.warning_amber_rounded,
-                                    color: Color(0xFFDC2626),
-                                    size: 20,
-                                  ),
-                                  SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'アクセスが停止されています',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                            fontSize: 13,
-                                            color: Color(0xFF7F1D1D),
-                                          ),
-                                        ),
-                                        SizedBox(height: 4),
-                                        Text(
-                                          'このクライアントのAPIアクセスは現在無効化されています。再開するには管理画面から操作してください。',
-                                          style: TextStyle(
-                                            fontSize: 13,
-                                            color: Color(0xFF991B1B),
-                                          ),
-                                        ),
-                                      ],
+                            Column(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFFEF2F2),
+                                    border: Border.all(
+                                      color: const Color(0xFFFCA5A5),
                                     ),
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
-                                ],
-                              ),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: const [
+                                      Icon(
+                                        Icons.warning_amber_rounded,
+                                        color: Color(0xFFDC2626),
+                                        size: 20,
+                                      ),
+                                      SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'アクセスが停止されています',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 13,
+                                                color: Color(0xFF7F1D1D),
+                                              ),
+                                            ),
+                                            SizedBox(height: 4),
+                                            Text(
+                                              'このクライアントのAPIアクセスは現在無効化されています。',
+                                              style: TextStyle(
+                                                fontSize: 13,
+                                                color: Color(0xFF991B1B),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                    onPressed: widget.onResume,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF4F46E5),
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 18,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      textStyle: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    child: const Text('利用開始'),
+                                  ),
+                                ),
+                              ],
                             ),
                         ],
                       ),
