@@ -64,7 +64,7 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
-                        'アクセストークン交付',
+                        'アクセストークン発行',
                         style: TextStyle(fontSize: 18),
                       ),
                       IconButton(
@@ -89,8 +89,8 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
                           iconColor: const Color(0xFF16A34A),
                           backgroundColor: const Color(0xFFF0FDF4),
                           borderColor: const Color(0xFFBBF7D0),
-                          title: 'アクティベーション完了',
-                          subtitle: '${widget.clientName} を有効化しました',
+                          title: '利用開始しました。',
+                          subtitle: '',
                           titleColor: const Color(0xFF14532D),
                           subtitleColor: const Color(0xFF15803D),
                         ),
@@ -400,11 +400,13 @@ class _Banner extends StatelessWidget {
                   color: titleColor,
                 ),
               ),
-              const SizedBox(height: 2),
-              Text(
-                subtitle,
-                style: TextStyle(fontSize: 13, color: subtitleColor),
-              ),
+              if (subtitle.isNotEmpty) ...[
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: TextStyle(fontSize: 13, color: subtitleColor),
+                ),
+              ],
             ],
           ),
         ],
