@@ -86,7 +86,7 @@ class _AppNavigatorState extends State<AppNavigator> {
 
     // TODO: clientId を使ってバックエンドからクライアント情報を取得する
     final clientInfo = ClientInfo(
-      name: '取得中...',
+      name: '株式会社モックデータ商事',
       identifier: clientId,
       email: '',
       status: ClientStatus.preparing,
