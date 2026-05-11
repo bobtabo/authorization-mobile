@@ -1,3 +1,5 @@
+# Flutter CI ワークフロー
+# developブランチへのpush、mainブランチへのPR時にCIを実行
 name: CI
 
 on:
@@ -10,59 +12,90 @@ on:
 jobs:
   analyze-and-test:
     name: Analyze & Test
+    # Ubuntu ランナーを使用
     runs-on: ubuntu-latest
+
+    # CI実行ステップ
     steps:
       - uses: actions/checkout@v4
 
+      # Flutter 3.41.9 をセットアップ（キャッシュ有効）
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.41.9'
           cache: true
 
+      # .env ファイルをコピー
       - name: Setup .env
         run: cp .env.example .env
 
+      # 依存パッケージをインストール
       - run: flutter pub get
+
+      # コードフォーマットチェック（未フォーマットのコードはCIを失敗させる）
       - run: dart format --set-exit-if-changed .
+
+      # 静的解析を実行
       - run: flutter analyze
+
+      # 依存パッケージの脆弱性スキャン
       - run: dart pub audit
+
+      # テストを実行
       - run: flutter test
 
   build-android:
     name: Build Android
+    # Ubuntu ランナーを使用
     runs-on: ubuntu-latest
+
+    # ビルドステップ
     steps:
       - uses: actions/checkout@v4
 
+      # Java 17 (Temurin) をセットアップ（Android ビルドに必要）
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
 
+      # Flutter 3.41.9 をセットアップ（キャッシュ有効）
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.41.9'
           cache: true
 
+      # .env ファイルをコピー
       - name: Setup .env
         run: cp .env.example .env
 
+      # 依存パッケージをインストール
       - run: flutter pub get
+
+      # Android APK をデバッグビルド
       - run: flutter build apk --debug
 
   build-ios:
     name: Build iOS
+    # macOS ランナーを使用（iOS ビルドに必要）
     runs-on: macos-latest
+
+    # ビルドステップ
     steps:
       - uses: actions/checkout@v4
 
+      # Flutter 3.41.9 をセットアップ（キャッシュ有効）
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.41.9'
           cache: true
 
+      # .env ファイルをコピー
       - name: Setup .env
         run: cp .env.example .env
 
+      # 依存パッケージをインストール
       - run: flutter pub get
+
+      # iOS アプリをデバッグビルド（コード署名なし）
       - run: flutter build ios --no-codesign --debug
