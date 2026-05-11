@@ -23,7 +23,9 @@ jobs:
         run: cp .env.example .env
 
       - run: flutter pub get
+      - run: dart format --set-exit-if-changed .
       - run: flutter analyze
+      - run: dart pub audit
       - run: flutter test
 
   build-android:
