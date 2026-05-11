@@ -96,11 +96,11 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                       ),
                       // 外枠（点滅）
                       Positioned.fill(
-                        child: _PulsingBorder(),
+                        child: IgnorePointer(child: _PulsingBorder()),
                       ),
                       // コーナーマーカー
                       Positioned.fill(
-                        child: _ScannerCorners(),
+                        child: IgnorePointer(child: _ScannerCorners()),
                       ),
                     ],
                   ),
