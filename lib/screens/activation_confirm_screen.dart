@@ -40,7 +40,7 @@ class ActivationConfirmScreen extends StatelessWidget {
                     ),
                   ),
                   const Text(
-                    'アクティベーション確認',
+                    '利用開始の確認',
                     style: TextStyle(fontSize: 18),
                   ),
                 ],
@@ -60,7 +60,7 @@ class ActivationConfirmScreen extends StatelessWidget {
                       backgroundColor: const Color(0xFFEFF6FF),
                       borderColor: const Color(0xFFBFDBFE),
                       title: 'QRコードを読み取りました',
-                      subtitle: '以下のクライアントを有効化します',
+                      subtitle: '',
                       titleColor: const Color(0xFF1E3A5F),
                       subtitleColor: const Color(0xFF1D4ED8),
                     ),
@@ -218,7 +218,7 @@ class ActivationConfirmScreen extends StatelessWidget {
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  child: const Text('利用開始（Activeにする）'),
+                  child: const Text('利用開始する'),
                 ),
               )
                   .animate()
@@ -278,11 +278,13 @@ class _InfoBanner extends StatelessWidget {
                   color: titleColor,
                 ),
               ),
-              const SizedBox(height: 2),
-              Text(
-                subtitle,
-                style: TextStyle(fontSize: 13, color: subtitleColor),
-              ),
+              if (subtitle.isNotEmpty) ...[
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: TextStyle(fontSize: 13, color: subtitleColor),
+                ),
+              ],
             ],
           ),
         ],
