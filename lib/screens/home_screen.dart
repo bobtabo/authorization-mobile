@@ -243,7 +243,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             ),
                                             SizedBox(height: 4),
                                             Text(
-                                              'このクライアントのAPIアクセスは現在無効化されています。',
+                                              'APIアクセスは現在無効化されています。',
                                               style: TextStyle(
                                                 fontSize: 13,
                                                 color: Color(0xFF991B1B),
@@ -575,7 +575,7 @@ class _SuspendDialog extends StatelessWidget {
                             ),
                             SizedBox(height: 8),
                             Text(
-                              'このクライアントのAPIアクセスを即座に無効化します。',
+                              'APIアクセスを即座に無効化します。',
                               style: TextStyle(
                                 fontSize: 13,
                                 color: Color(0xFF4B5563),
