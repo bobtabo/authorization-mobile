@@ -31,8 +31,8 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
     });
   }
 
-  Future<void> _handleShare() async {
-    await SharePlus.instance.share(ShareParams(text: widget.token));
+  void _handleShare() {
+    Share.share(widget.token);
   }
 
   void _handleClose() {
