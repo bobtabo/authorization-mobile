@@ -93,10 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       vertical: 12,
                     ),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
                             SvgPicture.asset(
                               'assets/icon.svg',
                               width: 32,
@@ -107,13 +104,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               'Authorization Gateway',
                               style: TextStyle(fontSize: 18),
                             ),
-                          ],
-                        ),
-                        const Icon(
-                          Icons.shield_outlined,
-                          color: Color(0xFF4F46E5),
-                          size: 24,
-                        ),
                       ],
                     ),
                   ),
