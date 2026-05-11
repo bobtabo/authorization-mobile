@@ -197,6 +197,8 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
                                       ),
                                       child: Text(
                                         widget.token,
+                                        maxLines: 3,
+                                        overflow: TextOverflow.ellipsis,
                                         style: const TextStyle(
                                           fontFamily: 'monospace',
                                           fontSize: 12,
