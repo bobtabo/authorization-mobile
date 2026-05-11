@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../config/backends.dart';
-import '../widgets/backend_selector.dart';
 
 class SplashScreen extends StatefulWidget {
   final VoidCallback onStart;
@@ -63,17 +62,38 @@ class _SplashScreenState extends State<SplashScreen>
           padding: const EdgeInsets.all(32),
           child: Column(
             children: [
-              // バックエンド切替ボタン
-              Align(
-                alignment: Alignment.topRight,
-                child: IconButton(
-                  onPressed: () => showBackendSelector(
-                    context,
-                    selected: widget.selectedBackend,
-                    onSelect: widget.onSelectBackend,
+              // バックエンド選択
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    'Backend:',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 14,
+                      decoration: TextDecoration.none,
+                    ),
                   ),
-                  icon: const Icon(Icons.settings, color: Colors.white70),
-                ),
+                  const SizedBox(width: 8),
+                  DropdownButton<BackendOption>(
+                    value: widget.selectedBackend,
+                    dropdownColor: const Color(0xFF4F46E5),
+                    style: const TextStyle(color: Colors.white, fontSize: 14),
+                    iconEnabledColor: Colors.white70,
+                    underline: Container(height: 1, color: Colors.white38),
+                    items: kBackends
+                        .map(
+                          (b) => DropdownMenuItem(
+                            value: b,
+                            child: Text(b.name),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (b) {
+                      if (b != null) widget.onSelectBackend(b);
+                    },
+                  ),
+                ],
               ),
               Expanded(
                 child: Center(
@@ -120,28 +140,6 @@ class _SplashScreenState extends State<SplashScreen>
                           .animate()
                           .fade(duration: 500.ms)
                           .slideY(begin: 0.2, end: 0),
-                      const SizedBox(height: 12),
-                      // 選択中バックエンド表示
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          widget.selectedBackend.name,
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 13,
-                            decoration: TextDecoration.none,
-                          ),
-                        ),
-                      )
-                          .animate()
-                          .fade(duration: 500.ms),
                     ],
                   ),
                 ),
