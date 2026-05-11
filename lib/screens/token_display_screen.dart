@@ -36,7 +36,7 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
     await SharePlus.instance.share(
       ShareParams(
         text: widget.token,
-        title: 'シェア',
+        title: 'アクセストークンをシェア',
         subject: 'アクセストークンをシェア',
         sharePositionOrigin: Rect.fromCenter(
           center: Offset(size.width / 2, size.height / 2),
