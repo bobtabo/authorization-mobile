@@ -174,12 +174,12 @@ class ActivationConfirmScreen extends StatelessWidget {
                           ),
                           children: [
                             TextSpan(
-                              text: '注意: ',
+                              text: '注意：',
                               style: TextStyle(fontWeight: FontWeight.w600),
                             ),
                             TextSpan(
                               text:
-                                  'このクライアントを有効化すると、アクセストークンが発行されます。トークンは一度だけ表示されますので、必ず安全な場所に保管してください。',
+                                  '利用開始すると、アクセストークンが発行されます。トークンは一度だけ表示されますので、必ず安全な場所に保管してください。',
                             ),
                           ],
                         ),
