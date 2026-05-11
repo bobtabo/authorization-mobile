@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -89,6 +90,8 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                           child: MobileScanner(
                             controller: _controller,
                             onDetect: _onDetect,
+                            errorBuilder: (context, error, child) =>
+                                _SimulatorFallback(onScan: widget.onScan),
                           ),
                         ),
                       ),
@@ -120,6 +123,70 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
               ),
             ),
             const SizedBox(height: 32),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SimulatorFallback extends StatelessWidget {
+  final ValueChanged<String> onScan;
+
+  const _SimulatorFallback({required this.onScan});
+
+  void _simulateScan(BuildContext context) {
+    final controller = TextEditingController(
+      text: 'https://apis.authorization-php.dev/activate?client_id=client_test_001',
+    );
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('QRスキャン（シミュレーター）'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(labelText: 'QRコードの値'),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('キャンセル'),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              onScan(controller.text.trim());
+            },
+            child: const Text('スキャン'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.black87,
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.videocam_off, color: Colors.white54, size: 48),
+            const SizedBox(height: 12),
+            const Text(
+              'カメラが利用できません',
+              style: TextStyle(color: Colors.white70, fontSize: 14),
+            ),
+            if (kDebugMode) ...[
+              const SizedBox(height: 20),
+              FilledButton.icon(
+                onPressed: () => _simulateScan(context),
+                icon: const Icon(Icons.qr_code),
+                label: const Text('テストスキャン'),
+              ),
+            ],
           ],
         ),
       ),
