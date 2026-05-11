@@ -63,37 +63,40 @@ class _SplashScreenState extends State<SplashScreen>
           child: Column(
             children: [
               // バックエンド選択
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    'Backend:',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14,
-                      decoration: TextDecoration.none,
+              Material(
+                color: Colors.transparent,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      'Backend:',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 14,
+                        decoration: TextDecoration.none,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  DropdownButton<BackendOption>(
-                    value: widget.selectedBackend,
-                    dropdownColor: const Color(0xFF4F46E5),
-                    style: const TextStyle(color: Colors.white, fontSize: 14),
-                    iconEnabledColor: Colors.white70,
-                    underline: Container(height: 1, color: Colors.white38),
-                    items: kBackends
-                        .map(
-                          (b) => DropdownMenuItem(
-                            value: b,
-                            child: Text(b.name),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: (b) {
-                      if (b != null) widget.onSelectBackend(b);
-                    },
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    DropdownButton<BackendOption>(
+                      value: widget.selectedBackend,
+                      dropdownColor: const Color(0xFF4F46E5),
+                      style: const TextStyle(color: Colors.white, fontSize: 14),
+                      iconEnabledColor: Colors.white70,
+                      underline: Container(height: 1, color: Colors.white38),
+                      items: kBackends
+                          .map(
+                            (b) => DropdownMenuItem(
+                              value: b,
+                              child: Text(b.name),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (b) {
+                        if (b != null) widget.onSelectBackend(b);
+                      },
+                    ),
+                  ],
+                ),
               ),
               Expanded(
                 child: Center(
