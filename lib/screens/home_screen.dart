@@ -114,43 +114,41 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
-                  // バックエンド選択
-                  Container(
-                    color: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Row(
-                      children: [
-                        const Text(
-                          'Backend:',
-                          style: TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
-                        ),
-                        const SizedBox(width: 8),
-                        DropdownButton<BackendOption>(
-                          value: widget.selectedBackend,
-                          style: const TextStyle(fontSize: 13, color: Color(0xFF1F2937)),
-                          underline: Container(height: 1, color: const Color(0xFFE0E7FF)),
-                          isDense: true,
-                          items: kBackends
-                              .map(
-                                (b) => DropdownMenuItem(
-                                  value: b,
-                                  child: Text(b.name),
-                                ),
-                              )
-                              .toList(),
-                          onChanged: (b) {
-                            if (b != null) widget.onSelectBackend(b);
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
                   // コンテンツ
                   Expanded(
                     child: SingleChildScrollView(
                       padding: const EdgeInsets.all(24),
                       child: Column(
                         children: [
+                          // バックエンド選択
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text(
+                                'Backend:',
+                                style: TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
+                              ),
+                              const SizedBox(width: 8),
+                              DropdownButton<BackendOption>(
+                                value: widget.selectedBackend,
+                                style: const TextStyle(fontSize: 13, color: Color(0xFF1F2937)),
+                                underline: Container(height: 1, color: const Color(0xFFE0E7FF)),
+                                isDense: true,
+                                items: kBackends
+                                    .map(
+                                      (b) => DropdownMenuItem(
+                                        value: b,
+                                        child: Text(b.name),
+                                      ),
+                                    )
+                                    .toList(),
+                                onChanged: (b) {
+                                  if (b != null) widget.onSelectBackend(b);
+                                },
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
                           // ステータスカード
                           _StatusCard(
                             clientInfo: widget.clientInfo,
