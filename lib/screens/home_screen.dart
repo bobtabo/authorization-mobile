@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../config/backends.dart';
 import '../models/client_info.dart';
+import '../widgets/backend_selector.dart';
 
 class HomeScreen extends StatefulWidget {
   final ClientInfo clientInfo;
   final VoidCallback onSuspend;
   final VoidCallback onResume;
+  final BackendOption selectedBackend;
+  final Future<void> Function(BackendOption) onSelectBackend;
 
   const HomeScreen({
     super.key,
     required this.clientInfo,
     required this.onSuspend,
     required this.onResume,
+    required this.selectedBackend,
+    required this.onSelectBackend,
   });
 
   @override
@@ -95,7 +101,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       vertical: 12,
                     ),
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
+                        Row(
+                          children: [
                             SvgPicture.asset(
                               'assets/icon.svg',
                               width: 32,
@@ -106,6 +115,21 @@ class _HomeScreenState extends State<HomeScreen> {
                               'Authorization Gateway',
                               style: TextStyle(fontSize: 18),
                             ),
+                          ],
+                        ),
+                        TextButton.icon(
+                          onPressed: () => showBackendSelector(
+                            context,
+                            selected: widget.selectedBackend,
+                            onSelect: widget.onSelectBackend,
+                          ),
+                          icon: const Icon(Icons.settings, size: 18),
+                          label: Text(widget.selectedBackend.name),
+                          style: TextButton.styleFrom(
+                            foregroundColor: const Color(0xFF4F46E5),
+                            textStyle: const TextStyle(fontSize: 13),
+                          ),
+                        ),
                       ],
                     ),
                   ),

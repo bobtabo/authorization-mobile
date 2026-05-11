@@ -2,11 +2,20 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../config/backends.dart';
+import '../widgets/backend_selector.dart';
 
 class SplashScreen extends StatefulWidget {
   final VoidCallback onStart;
+  final BackendOption selectedBackend;
+  final Future<void> Function(BackendOption) onSelectBackend;
 
-  const SplashScreen({super.key, required this.onStart});
+  const SplashScreen({
+    super.key,
+    required this.onStart,
+    required this.selectedBackend,
+    required this.onSelectBackend,
+  });
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -43,9 +52,9 @@ class _SplashScreenState extends State<SplashScreen>
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            Color(0xFF4F46E5), // indigo-600
-            Color(0xFF9333EA), // purple-600
-            Color(0xFF6B21A8), // purple-800
+            Color(0xFF4F46E5),
+            Color(0xFF9333EA),
+            Color(0xFF6B21A8),
           ],
         ),
       ),
@@ -54,6 +63,18 @@ class _SplashScreenState extends State<SplashScreen>
           padding: const EdgeInsets.all(32),
           child: Column(
             children: [
+              // バックエンド切替ボタン
+              Align(
+                alignment: Alignment.topRight,
+                child: IconButton(
+                  onPressed: () => showBackendSelector(
+                    context,
+                    selected: widget.selectedBackend,
+                    onSelect: widget.onSelectBackend,
+                  ),
+                  icon: const Icon(Icons.settings, color: Colors.white70),
+                ),
+              ),
               Expanded(
                 child: Center(
                   child: Column(
@@ -99,6 +120,28 @@ class _SplashScreenState extends State<SplashScreen>
                           .animate()
                           .fade(duration: 500.ms)
                           .slideY(begin: 0.2, end: 0),
+                      const SizedBox(height: 12),
+                      // 選択中バックエンド表示
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          widget.selectedBackend.name,
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 13,
+                            decoration: TextDecoration.none,
+                          ),
+                        ),
+                      )
+                          .animate()
+                          .fade(duration: 500.ms),
                     ],
                   ),
                 ),

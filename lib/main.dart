@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:app_links/app_links.dart';
 import 'config/app_config.dart';
+import 'config/backends.dart';
 import 'models/client_info.dart';
+import 'services/backend_service.dart';
 import 'screens/splash_screen.dart';
 import 'screens/qr_scanner_screen.dart';
 import 'screens/activation_confirm_screen.dart';
@@ -48,6 +50,7 @@ class _AppNavigatorState extends State<AppNavigator> {
   AppScreen _currentScreen = AppScreen.splash;
   ClientInfo? _clientInfo;
   String _token = '';
+  BackendOption _selectedBackend = kDefaultBackend;
 
   late final AppLinks _appLinks;
   StreamSubscription<Uri>? _linkSub;
@@ -56,12 +59,23 @@ class _AppNavigatorState extends State<AppNavigator> {
   void initState() {
     super.initState();
     _initDeepLinks();
+    _loadSavedBackend();
   }
 
   @override
   void dispose() {
     _linkSub?.cancel();
     super.dispose();
+  }
+
+  Future<void> _loadSavedBackend() async {
+    final backend = await BackendService.load();
+    setState(() => _selectedBackend = backend);
+  }
+
+  Future<void> _handleSelectBackend(BackendOption backend) async {
+    await BackendService.save(backend);
+    setState(() => _selectedBackend = backend);
   }
 
   Future<void> _initDeepLinks() async {
@@ -85,6 +99,7 @@ class _AppNavigatorState extends State<AppNavigator> {
     if (clientId == null || clientId.isEmpty) return;
 
     // TODO: clientId を使ってバックエンドからクライアント情報を取得する
+    // ディープリンク直接起動はデフォルト（PHP）で通信
     final clientInfo = ClientInfo(
       name: '株式会社モックデータ商事',
       identifier: clientId,
@@ -103,15 +118,12 @@ class _AppNavigatorState extends State<AppNavigator> {
   }
 
   void _handleQRScan(String qrData) {
-    // QRスキャナー画面からのスキャン結果
-    // URLであればディープリンクと同じ処理に流す
     final uri = Uri.tryParse(qrData);
     if (uri != null && uri.hasScheme) {
       _handleDeepLink(uri);
       return;
     }
 
-    // URLでない場合はモックデータで確認画面へ
     const mockClientInfo = ClientInfo(
       name: '株式会社モックデータ商事',
       identifier: 'client_2026051_sample_corp',
@@ -164,32 +176,50 @@ class _AppNavigatorState extends State<AppNavigator> {
   @override
   Widget build(BuildContext context) {
     return switch (_currentScreen) {
-      AppScreen.splash => SplashScreen(onStart: _handleStartScan),
+      AppScreen.splash => SplashScreen(
+          onStart: _handleStartScan,
+          selectedBackend: _selectedBackend,
+          onSelectBackend: _handleSelectBackend,
+        ),
       AppScreen.scanner => QRScannerScreen(
-        onScan: _handleQRScan,
-        onBack: _handleBackToSplash,
-      ),
+          onScan: _handleQRScan,
+          onBack: _handleBackToSplash,
+        ),
       AppScreen.confirm => _clientInfo != null
           ? ActivationConfirmScreen(
               clientInfo: _clientInfo!,
               onActivate: _handleActivate,
               onBack: _handleBackToScanner,
             )
-          : SplashScreen(onStart: _handleStartScan),
+          : SplashScreen(
+              onStart: _handleStartScan,
+              selectedBackend: _selectedBackend,
+              onSelectBackend: _handleSelectBackend,
+            ),
       AppScreen.token => _clientInfo != null
           ? TokenDisplayScreen(
               token: _token,
               clientName: _clientInfo!.name,
               onClose: _handleCloseToken,
             )
-          : SplashScreen(onStart: _handleStartScan),
+          : SplashScreen(
+              onStart: _handleStartScan,
+              selectedBackend: _selectedBackend,
+              onSelectBackend: _handleSelectBackend,
+            ),
       AppScreen.home => _clientInfo != null
           ? HomeScreen(
               clientInfo: _clientInfo!,
               onSuspend: _handleSuspend,
               onResume: _handleResume,
+              selectedBackend: _selectedBackend,
+              onSelectBackend: _handleSelectBackend,
             )
-          : SplashScreen(onStart: _handleStartScan),
+          : SplashScreen(
+              onStart: _handleStartScan,
+              selectedBackend: _selectedBackend,
+              onSelectBackend: _handleSelectBackend,
+            ),
     };
   }
 }
