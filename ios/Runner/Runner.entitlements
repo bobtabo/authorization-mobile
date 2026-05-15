@@ -2,11 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<!-- Universal Links: QRスキャナーなど外部アプリからのディープリンク -->
-	<!-- TODO: バックエンドのURL設計確定後にドメインを更新する -->
-	<key>com.apple.developer.associated-domains</key>
-	<array>
-		<string>applinks:apis.authorization-php.dev</string>
-	</array>
+	<!-- カスタムURLスキームはInfo.plistで管理するためentitlementsへの記載不要 -->
 </dict>
 </plist>

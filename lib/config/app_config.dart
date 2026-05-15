@@ -9,10 +9,21 @@ class AppConfig {
 
   static String defaultApiBase() => apiBase(kDefaultBackend.slug);
 
-  // ディープリンクのパス定義
-  // TODO: バックエンドのURL設計確定後に更新する
-  static const String activatePath = '/activate';
+  static String clientInfoUrl(String slug, String identifier) =>
+      '${apiBase(slug)}/clients/$identifier/info';
 
-  // Universal Links / App Links で使用するホスト
-  static String get deepLinkHost => Uri.parse(_gatewayUrl).host;
+  static String clientStartUrl(String slug, String identifier) =>
+      '${apiBase(slug)}/clients/$identifier/start';
+
+  static String clientStopUrl(String slug, String identifier) =>
+      '${apiBase(slug)}/clients/$identifier/stop';
+
+  // QRコードURLからidentifierを抽出する
+  // 形式: authgateway://clients/{identifier}/info
+  static ({String slug, String identifier})? parseQrUri(Uri uri) {
+    if (uri.scheme != 'authgateway' || uri.host != 'clients') return null;
+    final match = RegExp(r'^/([^/]+)/info$').firstMatch(uri.path);
+    if (match == null) return null;
+    return (slug: kDefaultBackend.slug, identifier: match.group(1)!);
+  }
 }

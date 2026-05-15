@@ -170,8 +170,7 @@ class _SimulatorFallback extends StatelessWidget {
     required ValueChanged<String> onScan,
   }) {
     final controller = TextEditingController(
-      text:
-          'https://apis.authorization-php.dev/activate?client_id=client_test_001',
+      text: 'authgateway://clients/client_test_001/info',
     );
     showAdaptiveDialog<void>(
       context: context,

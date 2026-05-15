@@ -5,6 +5,7 @@ import 'package:app_links/app_links.dart';
 import 'config/app_config.dart';
 import 'config/backends.dart';
 import 'models/client_info.dart';
+import 'services/api_service.dart';
 import 'services/backend_service.dart';
 import 'screens/splash_screen.dart';
 import 'screens/qr_scanner_screen.dart';
@@ -49,6 +50,7 @@ class _AppNavigatorState extends State<AppNavigator> {
   ClientInfo? _clientInfo;
   String _token = '';
   BackendOption _selectedBackend = kDefaultBackend;
+  bool _isLoading = false;
 
   late final AppLinks _appLinks;
   StreamSubscription<Uri>? _linkSub;
@@ -82,33 +84,36 @@ class _AppNavigatorState extends State<AppNavigator> {
     // アプリ起動時に受け取ったリンクを処理（アプリが終了していた場合）
     final initialUri = await _appLinks.getInitialLink();
     if (initialUri != null) {
-      _handleDeepLink(initialUri);
+      await _handleDeepLink(initialUri);
     }
 
     // アプリ起動中に受け取ったリンクを処理
-    _linkSub = _appLinks.uriLinkStream.listen(_handleDeepLink);
+    _linkSub = _appLinks.uriLinkStream.listen((uri) {
+      _handleDeepLink(uri);
+    });
   }
 
-  void _handleDeepLink(Uri uri) {
-    // TODO: バックエンドのURL設計確定後にパス・パラメーター名を更新する
-    if (uri.path != AppConfig.activatePath) return;
+  Future<void> _handleDeepLink(Uri uri) async {
+    final parsed = AppConfig.parseQrUri(uri);
+    if (parsed == null) return;
 
-    final clientId = uri.queryParameters['client_id'];
-    if (clientId == null || clientId.isEmpty) return;
-
-    // TODO: clientId を使ってバックエンドからクライアント情報を取得する
-    // ディープリンク直接起動はデフォルト（PHP）で通信
-    final clientInfo = ClientInfo(
-      name: '株式会社モックデータ商事',
-      identifier: clientId,
-      email: 'example@gmail.com',
-      status: ClientStatus.preparing,
-    );
-
-    setState(() {
-      _clientInfo = clientInfo;
-      _currentScreen = AppScreen.confirm;
-    });
+    _setLoading(true);
+    try {
+      final clientInfo = await ApiService.fetchClientInfo(
+        parsed.slug,
+        parsed.identifier,
+      );
+      setState(() {
+        _clientInfo = clientInfo;
+        _currentScreen = AppScreen.confirm;
+      });
+    } on ApiException catch (e) {
+      await _showError('クライアント情報の取得に失敗しました（${e.statusCode}）');
+    } catch (_) {
+      await _showError('通信エラーが発生しました');
+    } finally {
+      _setLoading(false);
+    }
   }
 
   void _handleStartScan() {
@@ -119,29 +124,29 @@ class _AppNavigatorState extends State<AppNavigator> {
     final uri = Uri.tryParse(qrData);
     if (uri != null && uri.hasScheme) {
       _handleDeepLink(uri);
-      return;
     }
-
-    const mockClientInfo = ClientInfo(
-      name: '株式会社モックデータ商事',
-      identifier: 'client_2026051_sample_corp',
-      email: 'example@gmail.com',
-      status: ClientStatus.preparing,
-    );
-    setState(() {
-      _clientInfo = mockClientInfo;
-      _currentScreen = AppScreen.confirm;
-    });
   }
 
-  void _handleActivate() {
-    const mockToken =
-        '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';
-    setState(() {
-      _token = mockToken;
-      _clientInfo = _clientInfo?.copyWith(status: ClientStatus.active);
-      _currentScreen = AppScreen.token;
-    });
+  Future<void> _handleActivate() async {
+    if (_clientInfo == null) return;
+    _setLoading(true);
+    try {
+      final token = await ApiService.activateClient(
+        _selectedBackend.slug,
+        _clientInfo!.identifier,
+      );
+      setState(() {
+        _token = token;
+        _clientInfo = _clientInfo?.copyWith(status: ClientStatus.active);
+        _currentScreen = AppScreen.token;
+      });
+    } on ApiException catch (e) {
+      await _showError('利用開始に失敗しました（${e.statusCode}）');
+    } catch (_) {
+      await _showError('通信エラーが発生しました');
+    } finally {
+      _setLoading(false);
+    }
   }
 
   void _handleCloseToken() {
@@ -151,16 +156,44 @@ class _AppNavigatorState extends State<AppNavigator> {
     });
   }
 
-  void _handleSuspend() {
-    setState(() {
-      _clientInfo = _clientInfo?.copyWith(status: ClientStatus.suspended);
-    });
+  Future<void> _handleSuspend() async {
+    if (_clientInfo == null) return;
+    _setLoading(true);
+    try {
+      await ApiService.stopClient(
+        _selectedBackend.slug,
+        _clientInfo!.identifier,
+      );
+      setState(() {
+        _clientInfo = _clientInfo?.copyWith(status: ClientStatus.suspended);
+      });
+    } on ApiException catch (e) {
+      await _showError('利用停止に失敗しました（${e.statusCode}）');
+    } catch (_) {
+      await _showError('通信エラーが発生しました');
+    } finally {
+      _setLoading(false);
+    }
   }
 
-  void _handleResume() {
-    setState(() {
-      _clientInfo = _clientInfo?.copyWith(status: ClientStatus.active);
-    });
+  Future<void> _handleResume() async {
+    if (_clientInfo == null) return;
+    _setLoading(true);
+    try {
+      await ApiService.resumeClient(
+        _selectedBackend.slug,
+        _clientInfo!.identifier,
+      );
+      setState(() {
+        _clientInfo = _clientInfo?.copyWith(status: ClientStatus.active);
+      });
+    } on ApiException catch (e) {
+      await _showError('利用開始に失敗しました（${e.statusCode}）');
+    } catch (_) {
+      await _showError('通信エラーが発生しました');
+    } finally {
+      _setLoading(false);
+    }
   }
 
   void _handleBackToSplash() {
@@ -171,9 +204,28 @@ class _AppNavigatorState extends State<AppNavigator> {
     setState(() => _currentScreen = AppScreen.scanner);
   }
 
+  void _setLoading(bool v) => setState(() => _isLoading = v);
+
+  Future<void> _showError(String message) async {
+    if (!mounted) return;
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('エラー'),
+        content: Text(message),
+        actions: [
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return switch (_currentScreen) {
+    final screen = switch (_currentScreen) {
       AppScreen.splash => SplashScreen(
         onStart: _handleStartScan,
         selectedBackend: _selectedBackend,
@@ -187,7 +239,9 @@ class _AppNavigatorState extends State<AppNavigator> {
         _clientInfo != null
             ? ActivationConfirmScreen(
                 clientInfo: _clientInfo!,
-                onActivate: _handleActivate,
+                onActivate: () {
+                  _handleActivate();
+                },
                 onBack: _handleBackToScanner,
               )
             : SplashScreen(
@@ -211,8 +265,12 @@ class _AppNavigatorState extends State<AppNavigator> {
         _clientInfo != null
             ? HomeScreen(
                 clientInfo: _clientInfo!,
-                onSuspend: _handleSuspend,
-                onResume: _handleResume,
+                onSuspend: () {
+                  _handleSuspend();
+                },
+                onResume: () {
+                  _handleResume();
+                },
                 selectedBackend: _selectedBackend,
                 onSelectBackend: _handleSelectBackend,
               )
@@ -222,5 +280,14 @@ class _AppNavigatorState extends State<AppNavigator> {
                 onSelectBackend: _handleSelectBackend,
               ),
     };
+
+    if (!_isLoading) return screen;
+    return Stack(
+      children: [
+        screen,
+        const ModalBarrier(dismissible: false, color: Colors.black45),
+        const Center(child: CircularProgressIndicator()),
+      ],
+    );
   }
 }
