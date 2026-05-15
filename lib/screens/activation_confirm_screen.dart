@@ -1,10 +1,20 @@
+// This is a program developed by BobTabo.
+//
+// Copyright (c) 2026 BobTabo. All Rights Reserved.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../models/client_info.dart';
 
+/// QRスキャン後にクライアント情報を確認して利用開始するための画面。
 class ActivationConfirmScreen extends StatelessWidget {
+  /// 確認対象のクライアント情報。
   final ClientInfo clientInfo;
+
+  /// 利用開始ボタン押下時のコールバック。
   final VoidCallback onActivate;
+
+  /// 戻るボタン押下時のコールバック。
   final VoidCallback onBack;
 
   const ActivationConfirmScreen({

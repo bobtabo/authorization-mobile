@@ -1,10 +1,19 @@
+// This is a program developed by BobTabo.
+//
+// Copyright (c) 2026 BobTabo. All Rights Reserved.
+
+/// バックエンド選択肢を表すクラス。
 class BackendOption {
+  /// 表示名。
   final String name;
+
+  /// APIゲートウェイのパスセグメントに使用するスラッグ。
   final String slug;
 
   const BackendOption({required this.name, required this.slug});
 }
 
+/// 利用可能なバックエンドの一覧。
 const List<BackendOption> kBackends = [
   BackendOption(name: 'Go (Gin)', slug: 'go-gin'),
   BackendOption(name: 'Go (Beego)', slug: 'go-beego'),
@@ -18,4 +27,5 @@ const List<BackendOption> kBackends = [
   BackendOption(name: 'TypeScript', slug: 'ts'),
 ];
 
+/// デフォルトで選択されるバックエンド。
 const BackendOption kDefaultBackend = BackendOption(name: 'PHP', slug: 'php');

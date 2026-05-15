@@ -23,8 +23,6 @@
 担当者がクライアントを登録した後、クライアントが自身のAPIアクセスを利用開始・停止するための操作端末として機能します。  
 アクセストークンの発行は認可サーバーが行います。
 
-> 関連 Issue: [#67 認可フローの改善（スマホ対応）](https://github.com/bobtabo/authorization/issues/67)
-
 ---
 
 ## :iphone: 画面構成
@@ -33,9 +31,9 @@
 |:---|:---|
 | SplashScreen | 起動画面・QRスキャン開始ボタン |
 | QRScannerScreen | カメラでQRコードをスキャン |
-| ActivationConfirmScreen | クライアント情報の確認・アクティベート実行 |
+| ActivationConfirmScreen | クライアント情報の確認・利用開始実行 |
 | TokenDisplayScreen | アクセストークン表示・コピー・シェア |
-| HomeScreen | 認証ステータス確認・利用停止操作 |
+| HomeScreen | 利用状態確認・利用停止／再開操作 |
 
 ---
 
@@ -44,11 +42,13 @@
 | 用途 | パッケージ |
 |:---|:---|
 | QRスキャン | `mobile_scanner` |
-| ディープリンク（Universal Links / App Links） | `app_links` |
+| ディープリンク（カスタムURLスキーム） | `app_links` |
+| HTTP通信 | `http` |
 | アニメーション | `flutter_animate` |
 | SVG表示 | `flutter_svg` |
 | シェア | `share_plus` |
 | 環境設定 | `flutter_dotenv` |
+| 永続化 | `shared_preferences` |
 
 ---
 
@@ -71,7 +71,7 @@ cd authorization-mobile
 
 # 環境設定ファイルを作成
 cp .env.example .env
-# .env を編集して接続先バックエンドを設定
+# .env を編集して接続先バックエンドのURLを設定
 
 flutter pub get
 ```
@@ -103,46 +103,57 @@ flutter run -d iPhone          # iOS Simulator
 
 ## :gear: 環境設定
 
-`.env` でバックエンドの接続先を管理します。`.env` は Git 管理対象外です。
+`.env` でバックエンドの接続先を管理します。<br>
+※変更しなくても利用可能です。
 
 ```env
-BASE_URL=https://apis.authorization-php.dev
+BASE_URL=https://ample-precise-knee.ngrok-free.dev
 ```
 
 | 変数 | 説明 |
 |:---|:---|
-| `BASE_URL` | 認可サーバーのベースURL |
+| `BASE_URL` | APIゲートウェイのベースURL |
 
-バックエンドを切り替える場合は `.env` の `BASE_URL` を変更してください。  
-（複数バックエンドの切り替えオペレーションは今後対応予定）
+アプリ内のバックエンド切替プルダウンで、接続先スラッグ（`/function/{slug}/api`）を変更できます。
 
 ---
 
-## :link: ディープリンク（Universal Links / App Links）
+## :link: ディープリンク
 
-外部QRスキャナーアプリでQRコードを読み取ると、本アプリが自動で起動し、アクティベーション確認画面に遷移します。
+カスタムURLスキーム `authgateway://` を使用します。外部QRスキャナーアプリでQRコードを読み取ると、本アプリが自動起動します。
 
 | プラットフォーム | 方式 | 設定ファイル |
 |:---|:---|:---|
-| iOS | Universal Links | `ios/Runner/Runner.entitlements` |
-| Android | App Links | `android/app/src/main/AndroidManifest.xml` |
+| iOS | カスタムURLスキーム | `ios/Runner/Info.plist` |
+| Android | カスタムURLスキーム | `android/app/src/main/AndroidManifest.xml` |
 
-### サーバー側に必要な対応
+### QRコードのURL形式
 
-本アプリの App Links / Universal Links が正常に動作するには、認可サーバー側に以下のファイルの配置が必要です。
-
-**iOS**
 ```
-https://apis.authorization-php.dev/.well-known/apple-app-site-association
+authgateway://clients/{identifier}/info
 ```
 
-**Android**
-```
-https://apis.authorization-php.dev/.well-known/assetlinks.json
+### ディープリンクのテスト
+
+```bash
+# Android
+adb shell am start -a android.intent.action.VIEW -d "authgateway://clients/{identifier}/info"
+
+# iOS Simulator
+xcrun simctl openurl booted "authgateway://clients/{identifier}/info"
 ```
 
-> QRコードに含まれるURLの形式はバックエンド設計確定後に更新予定。  
-> 現在の仮実装: `https://apis.authorization-php.dev/activate?client_id={id}`
+---
+
+## :arrows_counterclockwise: セッション復元
+
+利用開始した端末はローカルにクライアント識別子を保存します。  
+次回起動時にバックエンドへステータスを確認し、利用中／停止中であればホーム画面へ直行します。
+
+| 状態 | 起動時の遷移先 |
+|:---|:---|
+| 利用中 / 停止中 | ホーム画面 |
+| 未利用 / セッションなし | スプラッシュ画面 |
 
 ---
 

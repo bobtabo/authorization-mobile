@@ -1,12 +1,22 @@
+// This is a program developed by BobTabo.
+//
+// Copyright (c) 2026 BobTabo. All Rights Reserved.
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../config/backends.dart';
 
+/// アプリ起動時に表示されるスプラッシュ画面。QRスキャン開始とバックエンド選択を提供する。
 class SplashScreen extends StatefulWidget {
+  /// QRスキャン開始ボタン押下時のコールバック。
   final VoidCallback onStart;
+
+  /// 現在選択中のバックエンド。
   final BackendOption selectedBackend;
+
+  /// バックエンド変更時のコールバック。
   final Future<void> Function(BackendOption) onSelectBackend;
 
   const SplashScreen({

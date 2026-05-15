@@ -1,10 +1,18 @@
+// This is a program developed by BobTabo.
+//
+// Copyright (c) 2026 BobTabo. All Rights Reserved.
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
+/// QRコードをスキャンして結果を返す画面。
 class QRScannerScreen extends StatefulWidget {
+  /// スキャン成功時にQRコードの値を渡すコールバック。
   final ValueChanged<String> onScan;
+
+  /// 閉じるボタン押下時のコールバック。
   final VoidCallback onBack;
 
   const QRScannerScreen({
@@ -119,10 +127,15 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                           right: 0,
                           child: Center(
                             child: FilledButton.icon(
-                              onPressed: () => _SimulatorFallback.showDialog(
-                                context,
-                                onScan: widget.onScan,
-                              ),
+                              onPressed: () async {
+                                _controller.stop();
+                                if (!context.mounted) return;
+                                await _SimulatorFallback.showDialog(
+                                  context,
+                                  onScan: widget.onScan,
+                                );
+                                _controller.start();
+                              },
                               icon: const Icon(Icons.qr_code, size: 16),
                               label: const Text('テストスキャン'),
                               style: FilledButton.styleFrom(
@@ -165,14 +178,14 @@ class _SimulatorFallback extends StatelessWidget {
 
   const _SimulatorFallback({required this.onScan});
 
-  static void showDialog(
+  static Future<void> showDialog(
     BuildContext context, {
     required ValueChanged<String> onScan,
   }) {
     final controller = TextEditingController(
       text: 'authgateway://clients/client_test_001/info',
     );
-    showAdaptiveDialog<void>(
+    return showAdaptiveDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('テストスキャン'),

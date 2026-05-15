@@ -1,3 +1,7 @@
+// This is a program developed by BobTabo.
+//
+// Copyright (c) 2026 BobTabo. All Rights Reserved.
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -7,6 +11,7 @@ import 'config/backends.dart';
 import 'models/client_info.dart';
 import 'services/api_service.dart';
 import 'services/backend_service.dart';
+import 'services/client_session_service.dart';
 import 'screens/splash_screen.dart';
 import 'screens/qr_scanner_screen.dart';
 import 'screens/activation_confirm_screen.dart';
@@ -19,6 +24,7 @@ Future<void> main() async {
   runApp(const AuthorizationGatewayApp());
 }
 
+/// アプリのルートウィジェット。テーマと [AppNavigator] を設定する。
 class AuthorizationGatewayApp extends StatelessWidget {
   const AuthorizationGatewayApp({super.key});
 
@@ -36,8 +42,10 @@ class AuthorizationGatewayApp extends StatelessWidget {
   }
 }
 
+/// アプリ内の画面遷移状態を表す列挙型。
 enum AppScreen { splash, scanner, confirm, token, home }
 
+/// アプリ全体の画面遷移とAPIコールを管理するルートウィジェット。
 class AppNavigator extends StatefulWidget {
   const AppNavigator({super.key});
 
@@ -60,6 +68,7 @@ class _AppNavigatorState extends State<AppNavigator> {
     super.initState();
     _initDeepLinks();
     _loadSavedBackend();
+    _restoreSession();
   }
 
   @override
@@ -71,6 +80,28 @@ class _AppNavigatorState extends State<AppNavigator> {
   Future<void> _loadSavedBackend() async {
     final backend = await BackendService.load();
     setState(() => _selectedBackend = backend);
+  }
+
+  Future<void> _restoreSession() async {
+    final session = await ClientSessionService.load();
+    if (session == null) return;
+    try {
+      final clientInfo = await ApiService.fetchClientInfo(
+        session.slug,
+        session.identifier,
+      );
+      if (clientInfo.status == ClientStatus.active ||
+          clientInfo.status == ClientStatus.suspended) {
+        setState(() {
+          _clientInfo = clientInfo;
+          _currentScreen = AppScreen.home;
+        });
+      } else {
+        await ClientSessionService.clear();
+      }
+    } catch (e, st) {
+      debugPrint('[session restore] $e\n$st');
+    }
   }
 
   Future<void> _handleSelectBackend(BackendOption backend) async {
@@ -103,13 +134,21 @@ class _AppNavigatorState extends State<AppNavigator> {
         parsed.slug,
         parsed.identifier,
       );
+      final alreadyStarted =
+          clientInfo.status == ClientStatus.active ||
+          clientInfo.status == ClientStatus.suspended;
+      if (alreadyStarted) {
+        await ClientSessionService.save(parsed.slug, parsed.identifier);
+      }
       setState(() {
         _clientInfo = clientInfo;
-        _currentScreen = AppScreen.confirm;
+        _currentScreen = alreadyStarted ? AppScreen.home : AppScreen.confirm;
       });
-    } on ApiException catch (e) {
+    } on ApiException catch (e, st) {
+      debugPrint('[fetchClientInfo] ${e.statusCode} ${e.message}\n$st');
       await _showError('クライアント情報の取得に失敗しました（${e.statusCode}）');
-    } catch (_) {
+    } catch (e, st) {
+      debugPrint('[fetchClientInfo] $e\n$st');
       await _showError('通信エラーが発生しました');
     } finally {
       _setLoading(false);
@@ -135,14 +174,20 @@ class _AppNavigatorState extends State<AppNavigator> {
         _selectedBackend.slug,
         _clientInfo!.identifier,
       );
+      await ClientSessionService.save(
+        _selectedBackend.slug,
+        _clientInfo!.identifier,
+      );
       setState(() {
         _token = token;
         _clientInfo = _clientInfo?.copyWith(status: ClientStatus.active);
         _currentScreen = AppScreen.token;
       });
-    } on ApiException catch (e) {
+    } on ApiException catch (e, st) {
+      debugPrint('[activateClient] ${e.statusCode} ${e.message}\n$st');
       await _showError('利用開始に失敗しました（${e.statusCode}）');
-    } catch (_) {
+    } catch (e, st) {
+      debugPrint('[activateClient] $e\n$st');
       await _showError('通信エラーが発生しました');
     } finally {
       _setLoading(false);
@@ -167,9 +212,11 @@ class _AppNavigatorState extends State<AppNavigator> {
       setState(() {
         _clientInfo = _clientInfo?.copyWith(status: ClientStatus.suspended);
       });
-    } on ApiException catch (e) {
+    } on ApiException catch (e, st) {
+      debugPrint('[stopClient] ${e.statusCode} ${e.message}\n$st');
       await _showError('利用停止に失敗しました（${e.statusCode}）');
-    } catch (_) {
+    } catch (e, st) {
+      debugPrint('[stopClient] $e\n$st');
       await _showError('通信エラーが発生しました');
     } finally {
       _setLoading(false);
@@ -187,9 +234,11 @@ class _AppNavigatorState extends State<AppNavigator> {
       setState(() {
         _clientInfo = _clientInfo?.copyWith(status: ClientStatus.active);
       });
-    } on ApiException catch (e) {
+    } on ApiException catch (e, st) {
+      debugPrint('[resumeClient] ${e.statusCode} ${e.message}\n$st');
       await _showError('利用開始に失敗しました（${e.statusCode}）');
-    } catch (_) {
+    } catch (e, st) {
+      debugPrint('[resumeClient] $e\n$st');
       await _showError('通信エラーが発生しました');
     } finally {
       _setLoading(false);
