@@ -33,7 +33,7 @@ class ApiService {
   }
 
   static Future<String> activateClient(String slug, String identifier) async {
-    final res = await http.post(
+    final res = await http.patch(
       Uri.parse(AppConfig.clientStartUrl(slug, identifier)),
       headers: _headers,
     );
@@ -43,7 +43,7 @@ class ApiService {
   }
 
   static Future<void> stopClient(String slug, String identifier) async {
-    final res = await http.post(
+    final res = await http.patch(
       Uri.parse(AppConfig.clientStopUrl(slug, identifier)),
       headers: _headers,
     );
@@ -51,7 +51,7 @@ class ApiService {
   }
 
   static Future<void> resumeClient(String slug, String identifier) async {
-    final res = await http.post(
+    final res = await http.patch(
       Uri.parse(AppConfig.clientStartUrl(slug, identifier)),
       headers: _headers,
     );
