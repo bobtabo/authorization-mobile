@@ -90,17 +90,13 @@ class _AppNavigatorState extends State<AppNavigator> {
   }
 
   void _handleDeepLink(Uri uri) {
-    // TODO: バックエンドのURL設計確定後にパス・パラメーター名を更新する
-    if (uri.path != AppConfig.activatePath) return;
+    final parsed = AppConfig.parseQrUri(uri);
+    if (parsed == null) return;
 
-    final clientId = uri.queryParameters['client_id'];
-    if (clientId == null || clientId.isEmpty) return;
-
-    // TODO: clientId を使ってバックエンドからクライアント情報を取得する
-    // ディープリンク直接起動はデフォルト（PHP）で通信
+    // TODO: parsed.slug でバックエンドを切り替え、APIでクライアント情報を取得する
     final clientInfo = ClientInfo(
       name: '株式会社モックデータ商事',
-      identifier: clientId,
+      identifier: parsed.identifier,
       email: 'example@gmail.com',
       status: ClientStatus.preparing,
     );
@@ -119,19 +115,7 @@ class _AppNavigatorState extends State<AppNavigator> {
     final uri = Uri.tryParse(qrData);
     if (uri != null && uri.hasScheme) {
       _handleDeepLink(uri);
-      return;
     }
-
-    const mockClientInfo = ClientInfo(
-      name: '株式会社モックデータ商事',
-      identifier: 'client_2026051_sample_corp',
-      email: 'example@gmail.com',
-      status: ClientStatus.preparing,
-    );
-    setState(() {
-      _clientInfo = mockClientInfo;
-      _currentScreen = AppScreen.confirm;
-    });
   }
 
   void _handleActivate() {

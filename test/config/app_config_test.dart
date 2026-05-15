@@ -32,9 +32,26 @@ void main() {
     });
   });
 
-  group('AppConfig.deepLinkHost', () {
-    test('returns localhost from fallback BASE_URL', () {
-      expect(AppConfig.deepLinkHost, 'localhost');
+  group('AppConfig.parseQrUri', () {
+    test('parses valid authgateway URL', () {
+      final uri = Uri.parse('authgateway://clients/client_test_001/info');
+      final result = AppConfig.parseQrUri(uri);
+      expect(result?.identifier, 'client_test_001');
+    });
+
+    test('returns null for wrong scheme', () {
+      final uri = Uri.parse('https://example.com/clients/abc/info');
+      expect(AppConfig.parseQrUri(uri), isNull);
+    });
+
+    test('returns null for wrong host', () {
+      final uri = Uri.parse('authgateway://unknown/client_test_001/info');
+      expect(AppConfig.parseQrUri(uri), isNull);
+    });
+
+    test('returns null for wrong path', () {
+      final uri = Uri.parse('authgateway://clients/client_test_001/activate');
+      expect(AppConfig.parseQrUri(uri), isNull);
     });
   });
 }

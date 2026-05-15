@@ -24,16 +24,12 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-            <!-- App Links: QRスキャナーなど外部アプリからのディープリンク -->
-            <!-- TODO: バックエンドのURL設計確定後にパスを更新する -->
-            <intent-filter android:autoVerify="true">
+            <!-- カスタムURLスキーム: authgateway://clients/{identifier}/info -->
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
-                <data
-                    android:scheme="https"
-                    android:host="apis.authorization-php.dev"
-                    android:pathPrefix="/activate"/>
+                <data android:scheme="authgateway"/>
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
