@@ -134,15 +134,15 @@ class _AppNavigatorState extends State<AppNavigator> {
         parsed.slug,
         parsed.identifier,
       );
-      final alreadyStarted = clientInfo.status == ClientStatus.active ||
+      final alreadyStarted =
+          clientInfo.status == ClientStatus.active ||
           clientInfo.status == ClientStatus.suspended;
       if (alreadyStarted) {
         await ClientSessionService.save(parsed.slug, parsed.identifier);
       }
       setState(() {
         _clientInfo = clientInfo;
-        _currentScreen =
-            alreadyStarted ? AppScreen.home : AppScreen.confirm;
+        _currentScreen = alreadyStarted ? AppScreen.home : AppScreen.confirm;
       });
     } on ApiException catch (e, st) {
       debugPrint('[fetchClientInfo] ${e.statusCode} ${e.message}\n$st');
