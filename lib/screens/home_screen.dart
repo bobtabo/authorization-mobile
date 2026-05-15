@@ -1,3 +1,7 @@
+// This is a program developed by BobTabo.
+//
+// Copyright (c) 2026 BobTabo. All Rights Reserved.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_svg/flutter_svg.dart';

@@ -1,3 +1,7 @@
+// This is a program developed by BobTabo.
+//
+// Copyright (c) 2026 BobTabo. All Rights Reserved.
+
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../config/app_config.dart';

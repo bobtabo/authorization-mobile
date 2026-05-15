@@ -1,3 +1,7 @@
+// This is a program developed by BobTabo.
+//
+// Copyright (c) 2026 BobTabo. All Rights Reserved.
+
 import 'package:flutter/material.dart';
 import '../config/backends.dart';
 

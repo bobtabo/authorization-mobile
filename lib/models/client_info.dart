@@ -1,3 +1,7 @@
+// This is a program developed by BobTabo.
+//
+// Copyright (c) 2026 BobTabo. All Rights Reserved.
+
 /// クライアントの利用状態を表す列挙型。
 enum ClientStatus { preparing, active, suspended }
 

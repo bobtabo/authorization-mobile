@@ -1,3 +1,7 @@
+// This is a program developed by BobTabo.
+//
+// Copyright (c) 2026 BobTabo. All Rights Reserved.
+
 /// バックエンド選択肢を表すクラス。
 class BackendOption {
   /// 表示名。

@@ -1,3 +1,7 @@
+// This is a program developed by BobTabo.
+//
+// Copyright (c) 2026 BobTabo. All Rights Reserved.
+
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'backends.dart';
 
