@@ -103,10 +103,11 @@ flutter run -d iPhone          # iOS Simulator
 
 ## :gear: 環境設定
 
-`.env` でバックエンドの接続先を管理します。`.env` は Git 管理対象外です。
+`.env` でバックエンドの接続先を管理します。<br>
+※変更しなくても利用可能です。
 
 ```env
-BASE_URL=https://example.ngrok-free.dev
+BASE_URL=https://ample-precise-knee.ngrok-free.dev
 ```
 
 | 変数 | 説明 |
