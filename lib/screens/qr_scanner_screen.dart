@@ -119,10 +119,15 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                           right: 0,
                           child: Center(
                             child: FilledButton.icon(
-                              onPressed: () => _SimulatorFallback.showDialog(
-                                context,
-                                onScan: widget.onScan,
-                              ),
+                              onPressed: () async {
+                                _controller.stop();
+                                if (!context.mounted) return;
+                                await _SimulatorFallback.showDialog(
+                                  context,
+                                  onScan: widget.onScan,
+                                );
+                                _controller.start();
+                              },
                               icon: const Icon(Icons.qr_code, size: 16),
                               label: const Text('テストスキャン'),
                               style: FilledButton.styleFrom(
@@ -165,14 +170,14 @@ class _SimulatorFallback extends StatelessWidget {
 
   const _SimulatorFallback({required this.onScan});
 
-  static void showDialog(
+  static Future<void> showDialog(
     BuildContext context, {
     required ValueChanged<String> onScan,
   }) {
     final controller = TextEditingController(
       text: 'authgateway://clients/client_test_001/info',
     );
-    showAdaptiveDialog<void>(
+    return showAdaptiveDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('テストスキャン'),
