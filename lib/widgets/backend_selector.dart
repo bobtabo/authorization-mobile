@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../config/backends.dart';
 
+/// バックエンド選択ボトムシートを表示する。
 Future<void> showBackendSelector(
   BuildContext context, {
   required BackendOption selected,

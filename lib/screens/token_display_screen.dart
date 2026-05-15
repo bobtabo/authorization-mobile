@@ -3,9 +3,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:share_plus/share_plus.dart';
 
+/// 利用開始後にアクセストークンを一度だけ表示する画面。
 class TokenDisplayScreen extends StatefulWidget {
+  /// 表示するアクセストークン。
   final String token;
+
+  /// クライアント名。
   final String clientName;
+
+  /// 閉じるボタン押下時のコールバック。
   final VoidCallback onClose;
 
   const TokenDisplayScreen({

@@ -3,8 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
+/// QRコードをスキャンして結果を返す画面。
 class QRScannerScreen extends StatefulWidget {
+  /// スキャン成功時にQRコードの値を渡すコールバック。
   final ValueChanged<String> onScan;
+
+  /// 閉じるボタン押下時のコールバック。
   final VoidCallback onBack;
 
   const QRScannerScreen({

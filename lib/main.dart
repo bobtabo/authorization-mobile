@@ -20,6 +20,7 @@ Future<void> main() async {
   runApp(const AuthorizationGatewayApp());
 }
 
+/// アプリのルートウィジェット。テーマと [AppNavigator] を設定する。
 class AuthorizationGatewayApp extends StatelessWidget {
   const AuthorizationGatewayApp({super.key});
 
@@ -37,8 +38,10 @@ class AuthorizationGatewayApp extends StatelessWidget {
   }
 }
 
+/// アプリ内の画面遷移状態を表す列挙型。
 enum AppScreen { splash, scanner, confirm, token, home }
 
+/// アプリ全体の画面遷移とAPIコールを管理するルートウィジェット。
 class AppNavigator extends StatefulWidget {
   const AppNavigator({super.key});
 
