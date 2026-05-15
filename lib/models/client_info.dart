@@ -22,7 +22,7 @@ class ClientInfo {
   const ClientInfo({
     required this.name,
     required this.identifier,
-    required this.email,
+    this.email = '',
     required this.status,
   });
 
