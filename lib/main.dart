@@ -92,8 +92,8 @@ class _AppNavigatorState extends State<AppNavigator> {
       } else {
         await ClientSessionService.clear();
       }
-    } catch (_) {
-      // セッション復元失敗はスプラッシュのまま継続
+    } catch (e, st) {
+      debugPrint('[session restore] $e\n$st');
     }
   }
 
@@ -137,9 +137,11 @@ class _AppNavigatorState extends State<AppNavigator> {
         _currentScreen =
             alreadyStarted ? AppScreen.home : AppScreen.confirm;
       });
-    } on ApiException catch (e) {
+    } on ApiException catch (e, st) {
+      debugPrint('[fetchClientInfo] ${e.statusCode} ${e.message}\n$st');
       await _showError('クライアント情報の取得に失敗しました（${e.statusCode}）');
-    } catch (_) {
+    } catch (e, st) {
+      debugPrint('[fetchClientInfo] $e\n$st');
       await _showError('通信エラーが発生しました');
     } finally {
       _setLoading(false);
@@ -174,9 +176,11 @@ class _AppNavigatorState extends State<AppNavigator> {
         _clientInfo = _clientInfo?.copyWith(status: ClientStatus.active);
         _currentScreen = AppScreen.token;
       });
-    } on ApiException catch (e) {
+    } on ApiException catch (e, st) {
+      debugPrint('[activateClient] ${e.statusCode} ${e.message}\n$st');
       await _showError('利用開始に失敗しました（${e.statusCode}）');
-    } catch (_) {
+    } catch (e, st) {
+      debugPrint('[activateClient] $e\n$st');
       await _showError('通信エラーが発生しました');
     } finally {
       _setLoading(false);
@@ -201,9 +205,11 @@ class _AppNavigatorState extends State<AppNavigator> {
       setState(() {
         _clientInfo = _clientInfo?.copyWith(status: ClientStatus.suspended);
       });
-    } on ApiException catch (e) {
+    } on ApiException catch (e, st) {
+      debugPrint('[stopClient] ${e.statusCode} ${e.message}\n$st');
       await _showError('利用停止に失敗しました（${e.statusCode}）');
-    } catch (_) {
+    } catch (e, st) {
+      debugPrint('[stopClient] $e\n$st');
       await _showError('通信エラーが発生しました');
     } finally {
       _setLoading(false);
@@ -221,9 +227,11 @@ class _AppNavigatorState extends State<AppNavigator> {
       setState(() {
         _clientInfo = _clientInfo?.copyWith(status: ClientStatus.active);
       });
-    } on ApiException catch (e) {
+    } on ApiException catch (e, st) {
+      debugPrint('[resumeClient] ${e.statusCode} ${e.message}\n$st');
       await _showError('利用開始に失敗しました（${e.statusCode}）');
-    } catch (_) {
+    } catch (e, st) {
+      debugPrint('[resumeClient] $e\n$st');
       await _showError('通信エラーが発生しました');
     } finally {
       _setLoading(false);
