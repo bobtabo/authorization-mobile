@@ -129,6 +129,9 @@ class _AppNavigatorState extends State<AppNavigator> {
       );
       final alreadyStarted = clientInfo.status == ClientStatus.active ||
           clientInfo.status == ClientStatus.suspended;
+      if (alreadyStarted) {
+        await ClientSessionService.save(parsed.slug, parsed.identifier);
+      }
       setState(() {
         _clientInfo = clientInfo;
         _currentScreen =
