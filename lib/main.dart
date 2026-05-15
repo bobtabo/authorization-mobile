@@ -7,6 +7,7 @@ import 'config/backends.dart';
 import 'models/client_info.dart';
 import 'services/api_service.dart';
 import 'services/backend_service.dart';
+import 'services/client_session_service.dart';
 import 'screens/splash_screen.dart';
 import 'screens/qr_scanner_screen.dart';
 import 'screens/activation_confirm_screen.dart';
@@ -60,6 +61,7 @@ class _AppNavigatorState extends State<AppNavigator> {
     super.initState();
     _initDeepLinks();
     _loadSavedBackend();
+    _restoreSession();
   }
 
   @override
@@ -71,6 +73,28 @@ class _AppNavigatorState extends State<AppNavigator> {
   Future<void> _loadSavedBackend() async {
     final backend = await BackendService.load();
     setState(() => _selectedBackend = backend);
+  }
+
+  Future<void> _restoreSession() async {
+    final session = await ClientSessionService.load();
+    if (session == null) return;
+    try {
+      final clientInfo = await ApiService.fetchClientInfo(
+        session.slug,
+        session.identifier,
+      );
+      if (clientInfo.status == ClientStatus.active ||
+          clientInfo.status == ClientStatus.suspended) {
+        setState(() {
+          _clientInfo = clientInfo;
+          _currentScreen = AppScreen.home;
+        });
+      } else {
+        await ClientSessionService.clear();
+      }
+    } catch (_) {
+      // セッション復元失敗はスプラッシュのまま継続
+    }
   }
 
   Future<void> _handleSelectBackend(BackendOption backend) async {
@@ -103,9 +127,12 @@ class _AppNavigatorState extends State<AppNavigator> {
         parsed.slug,
         parsed.identifier,
       );
+      final alreadyStarted = clientInfo.status == ClientStatus.active ||
+          clientInfo.status == ClientStatus.suspended;
       setState(() {
         _clientInfo = clientInfo;
-        _currentScreen = AppScreen.confirm;
+        _currentScreen =
+            alreadyStarted ? AppScreen.home : AppScreen.confirm;
       });
     } on ApiException catch (e) {
       await _showError('クライアント情報の取得に失敗しました（${e.statusCode}）');
@@ -132,6 +159,10 @@ class _AppNavigatorState extends State<AppNavigator> {
     _setLoading(true);
     try {
       final token = await ApiService.activateClient(
+        _selectedBackend.slug,
+        _clientInfo!.identifier,
+      );
+      await ClientSessionService.save(
         _selectedBackend.slug,
         _clientInfo!.identifier,
       );
