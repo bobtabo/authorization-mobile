@@ -60,7 +60,7 @@ class ApiService {
 
   static void _checkStatus(http.Response res) {
     if (res.statusCode != 200) {
-      throw ApiException(res.statusCode, res.body);
+      throw ApiException(res.statusCode, '${res.request?.url} ${res.body}');
     }
   }
 
