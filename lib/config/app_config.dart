@@ -10,8 +10,11 @@ class AppConfig {
   static String get _gatewayUrl =>
       dotenv.env['BASE_URL'] ?? 'http://localhost:8080';
 
+  static String get _apiId => dotenv.env['API_ID'] ?? '{api-id}';
+
   /// 指定スラッグのAPIベースURLを返す。
-  static String apiBase(String slug) => '$_gatewayUrl/function/$slug/api';
+  static String apiBase(String slug) =>
+      '$_gatewayUrl/restapis/$_apiId/local/_user_request_/function/$slug/api';
 
   /// デフォルトバックエンドのAPIベースURLを返す。
   static String defaultApiBase() => apiBase(kDefaultBackend.slug);
