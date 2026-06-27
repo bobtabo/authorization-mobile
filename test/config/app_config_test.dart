@@ -11,14 +11,14 @@ void main() {
     test('builds URL with given slug', () {
       expect(
         AppConfig.apiBase('php'),
-        'http://localhost:8080/function/php/api',
+        'http://localhost:8080/restapis/{api-id}/local/_user_request_/function/php/api',
       );
     });
 
     test('builds URL with hyphenated slug', () {
       expect(
         AppConfig.apiBase('go-gin'),
-        'http://localhost:8080/function/go-gin/api',
+        'http://localhost:8080/restapis/{api-id}/local/_user_request_/function/go-gin/api',
       );
     });
   });
@@ -27,7 +27,7 @@ void main() {
     test('uses PHP slug', () {
       expect(
         AppConfig.defaultApiBase(),
-        'http://localhost:8080/function/php/api',
+        'http://localhost:8080/restapis/{api-id}/local/_user_request_/function/php/api',
       );
     });
   });
