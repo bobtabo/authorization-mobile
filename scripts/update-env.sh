@@ -25,18 +25,34 @@ TF_DIR="${AUTH_TERRAFORM_DIR:-${ROOT_DIR}/../authorization/terraform/local}"
 
 echo "🔍 Terraform output から API Gateway ID を取得中..."
 
+API_ID=""
 if [ -d "${TF_DIR}" ]; then
-  API_ID=$(cd "${TF_DIR}" && tflocal output -raw api_gateway_id 2>/dev/null || true)
-else
-  echo "⚠️  Terraform ディレクトリが見つかりません: ${TF_DIR}"
-  echo "   フォールバック: LocalStack API から直接取得します..."
+  API_ID=$(cd "${TF_DIR}" && tflocal output -raw api_gateway_id 2>&1) || {
+    echo "⚠️  tflocal output に失敗しました: ${API_ID}"
+    API_ID=""
+  }
+fi
+
+if [ -z "${API_ID}" ] || [ "${API_ID}" = "None" ]; then
+  echo "⚠️  Terraform ディレクトリが見つからないか output を取得できませんでした。"
+  echo "   フォールバック: LocalStack API (名前フィルター付き) から取得します..."
   API_ID=$(aws --endpoint-url=http://localhost:4566 apigateway get-rest-apis \
-    --query 'items[0].id' --output text 2>/dev/null || true)
+    --query "items[?name=='authorization-api'].id | [0]" \
+    --output text 2>&1) || {
+    echo "❌ LocalStack API からの取得にも失敗しました: ${API_ID}"
+    exit 1
+  }
 fi
 
 if [ -z "${API_ID}" ] || [ "${API_ID}" = "None" ]; then
   echo "❌ API Gateway ID を取得できませんでした。"
   echo "   認可サーバーで tflocal apply が完了しているか確認してください。"
+  exit 1
+fi
+
+# API_ID が英数字・ハイフンのみであることを検証（sed インジェクション防止）
+if [[ ! "${API_ID}" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+  echo "❌ 取得した API_ID に不正な文字が含まれています: ${API_ID}"
   exit 1
 fi
 
@@ -46,9 +62,9 @@ echo "✅ API Gateway ID: ${API_ID}"
 if grep -q '^API_ID=' "${ENV_FILE}"; then
   # macOS と Linux の sed -i 互換対応
   if [[ "$OSTYPE" == "darwin"* ]]; then
-    sed -i "" "s/API_ID=.*/API_ID=${API_ID}/" "${ENV_FILE}"
+    sed -i "" "s/^API_ID=.*/API_ID=${API_ID}/" "${ENV_FILE}"
   else
-    sed -i "s/API_ID=.*/API_ID=${API_ID}/" "${ENV_FILE}"
+    sed -i "s/^API_ID=.*/API_ID=${API_ID}/" "${ENV_FILE}"
   fi
 else
   echo "API_ID=${API_ID}" >> "${ENV_FILE}"

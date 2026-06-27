@@ -3,7 +3,7 @@
 // Copyright (c) 2026 BobTabo. All Rights Reserved.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../config/app_config.dart';
 import '../config/backends.dart';
 
 /// バックエンド選択ボトムシートを表示する。
@@ -67,7 +67,7 @@ class _BackendSelectorSheet extends StatelessWidget {
                       (backend) => ListTile(
                         title: Text(backend.name),
                         subtitle: Text(
-                          '/restapis/${dotenv.env['API_ID'] ?? '<api-id>'}/local/_user_request_/function/${backend.slug}/api',
+                          AppConfig.apiBase(backend.slug),
                           style: const TextStyle(
                             fontSize: 12,
                             fontFamily: 'monospace',

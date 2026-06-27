@@ -3,31 +3,31 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:authorization_mobile/config/app_config.dart';
 
 void main() {
-  setUpAll(() {
-    // Initialize dotenv with no values → BASE_URL is absent → falls back to 'http://localhost:8080'
-    dotenv.testLoad();
-  });
-  group('AppConfig.apiBase', () {
-    test('builds URL with given slug', () {
+  group('AppConfig.apiBase with API_ID set', () {
+    setUpAll(() {
+      dotenv.testLoad(
+        fileInput: 'BASE_URL=https://example.ngrok-free.app\nAPI_ID=abc123def',
+      );
+    });
+
+    test('builds URL with given slug and real API_ID', () {
       expect(
         AppConfig.apiBase('php'),
-        'http://localhost:8080/restapis/{api-id}/local/_user_request_/function/php/api',
+        'https://example.ngrok-free.app/restapis/abc123def/local/_user_request_/function/php/api',
       );
     });
 
     test('builds URL with hyphenated slug', () {
       expect(
         AppConfig.apiBase('go-gin'),
-        'http://localhost:8080/restapis/{api-id}/local/_user_request_/function/go-gin/api',
+        'https://example.ngrok-free.app/restapis/abc123def/local/_user_request_/function/go-gin/api',
       );
     });
-  });
 
-  group('AppConfig.defaultApiBase', () {
-    test('uses PHP slug', () {
+    test('defaultApiBase uses PHP slug', () {
       expect(
         AppConfig.defaultApiBase(),
-        'http://localhost:8080/restapis/{api-id}/local/_user_request_/function/php/api',
+        'https://example.ngrok-free.app/restapis/abc123def/local/_user_request_/function/php/api',
       );
     });
   });

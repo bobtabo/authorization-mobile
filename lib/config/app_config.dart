@@ -10,7 +10,14 @@ class AppConfig {
   static String get _gatewayUrl =>
       dotenv.env['BASE_URL'] ?? 'http://localhost:8080';
 
-  static String get _apiId => dotenv.env['API_ID'] ?? '{api-id}';
+  static String get _apiId {
+    final id = dotenv.env['API_ID'];
+    assert(
+      id != null && id != '{api-id}',
+      'API_ID が未設定です。scripts/update-env.sh を実行してください。',
+    );
+    return id ?? '{api-id}';
+  }
 
   /// 指定スラッグのAPIベースURLを返す。
   static String apiBase(String slug) =>
