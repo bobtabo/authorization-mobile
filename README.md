@@ -103,18 +103,32 @@ flutter run -d iPhone          # iOS Simulator
 
 ## :gear: 環境設定
 
-`.env` でバックエンドの接続先を管理します。<br>
-※変更しなくても利用可能です。
+`.env` でバックエンドの接続先を管理します。
 
 ```env
-BASE_URL=https://ample-precise-knee.ngrok-free.dev
+BASE_URL=https://ample-precise-knee.ngrok-free.app
+API_ID={api-id}
 ```
 
 | 変数 | 説明 |
 |:---|:---|
-| `BASE_URL` | APIゲートウェイのベースURL |
+| `BASE_URL` | ngrok 固定ドメイン（API Gateway の手前） |
+| `API_ID` | LocalStack API Gateway の REST API ID（`tflocal apply` で生成される） |
 
-アプリ内のバックエンド切替プルダウンで、接続先スラッグ（`/function/{slug}/api`）を変更できます。
+### API_ID の自動更新
+
+認可サーバー側で `tflocal apply` を実行した後、以下のスクリプトで `.env` の `API_ID` を自動更新できます。
+
+```bash
+bash scripts/update-env.sh
+```
+
+> [!NOTE]
+> スクリプトは認可サーバーの Terraform ディレクトリ（`../authorization/terraform/local`）から `tflocal output -raw api_gateway_id` で取得します。
+> ディレクトリ配置が異なる場合は環境変数 `AUTH_TERRAFORM_DIR` で上書きしてください。
+
+アプリ内のバックエンド切替プルダウンで、接続先スラッグを変更できます。
+API の URL 形式は `/restapis/{api-id}/local/_user_request_/function/{slug}/api` です。
 
 ---
 
