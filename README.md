@@ -71,10 +71,15 @@ cd authorization-mobile
 
 # 環境設定ファイルを作成
 cp .env.example .env
-# .env を編集して接続先バックエンドのURLを設定
-
 flutter pub get
+
+# 認可サーバーで tflocal apply 完了後に実行して API_ID を自動設定
+bash scripts/update-env.sh
 ```
+
+> [!IMPORTANT]
+> `scripts/update-env.sh` は認可サーバー（`../authorization`）で `tflocal apply` 実行済みであることが前提です。
+> 認可サーバーのセットアップが未完了の場合は、先に [bobtabo/authorization](https://github.com/bobtabo/authorization) の手順を済ませてください。
 
 ### 起動
 
@@ -112,8 +117,21 @@ API_ID={api-id}
 
 | 変数 | 説明 |
 |:---|:---|
-| `BASE_URL` | ngrok 固定ドメイン（API Gateway の手前） |
+| `BASE_URL` | ngrok 固定ドメイン（認可サーバーの API Gateway へのプロキシ）。**各自の ngrok ドメインに変更してください。** |
 | `API_ID` | LocalStack API Gateway の REST API ID（`tflocal apply` で生成される） |
+
+> [!NOTE]
+> `STAGE` は `local` 固定のためアプリ内にハードコードされています。`.env` での設定は不要です。
+
+### API パス形式
+
+LocalStack API Gateway のパス形式は以下のとおりです。
+
+```
+/restapis/{api-id}/local/_user_request_/function/{slug}/api
+```
+
+アプリ内のバックエンド切替プルダウンで、接続先スラッグ（`{slug}`）を変更できます。
 
 ### API_ID の自動更新
 
@@ -126,9 +144,6 @@ bash scripts/update-env.sh
 > [!NOTE]
 > スクリプトは認可サーバーの Terraform ディレクトリ（`../authorization/terraform/local`）から `tflocal output -raw api_gateway_id` で取得します。
 > ディレクトリ配置が異なる場合は環境変数 `AUTH_TERRAFORM_DIR` で上書きしてください。
-
-アプリ内のバックエンド切替プルダウンで、接続先スラッグを変更できます。
-API の URL 形式は `/restapis/{api-id}/local/_user_request_/function/{slug}/api` です。
 
 ---
 
