@@ -58,14 +58,9 @@ fi
 
 echo "✅ API Gateway ID: ${API_ID}"
 
-# API_ID 行がなければ追記、あれば置換
+# API_ID 行がなければ追記、あれば置換（perl で OS 差分なし・メタ文字安全）
 if grep -q '^API_ID=' "${ENV_FILE}"; then
-  # macOS と Linux の sed -i 互換対応
-  if [[ "$OSTYPE" == "darwin"* ]]; then
-    sed -i "" "s/^API_ID=.*/API_ID=${API_ID}/" "${ENV_FILE}"
-  else
-    sed -i "s/^API_ID=.*/API_ID=${API_ID}/" "${ENV_FILE}"
-  fi
+  perl -i -pe "s/^API_ID=.*/API_ID=${API_ID}/" "${ENV_FILE}"
 else
   echo "API_ID=${API_ID}" >> "${ENV_FILE}"
 fi
