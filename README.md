@@ -77,6 +77,10 @@ bash scripts/update-env.sh
 flutter pub get
 ```
 
+> [!IMPORTANT]
+> `scripts/update-env.sh` は認可サーバー（`../authorization`）で `tflocal apply` 実行済みであることが前提です。
+> 認可サーバーのセットアップが未完了の場合は、先に [bobtabo/authorization](https://github.com/bobtabo/authorization) の手順を済ませてください。
+
 ### 起動
 
 **エミュレーター／シミュレーターの起動**
