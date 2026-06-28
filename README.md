@@ -71,10 +71,10 @@ cd authorization-mobile
 
 # 環境設定ファイルを作成
 cp .env.example .env
-# LocalStack 起動後に以下を実行して API_ID を自動設定
-bash scripts/update-env.sh
-
 flutter pub get
+
+# 認可サーバーで tflocal apply 完了後に実行して API_ID を自動設定
+bash scripts/update-env.sh
 ```
 
 > [!IMPORTANT]
@@ -117,7 +117,7 @@ API_ID={api-id}
 
 | 変数 | 説明 |
 |:---|:---|
-| `BASE_URL` | ngrok 固定ドメイン（認可サーバーの API Gateway へのプロキシ） |
+| `BASE_URL` | ngrok 固定ドメイン（認可サーバーの API Gateway へのプロキシ）。**各自の ngrok ドメインに変更してください。** |
 | `API_ID` | LocalStack API Gateway の REST API ID（`tflocal apply` で生成される） |
 
 > [!NOTE]
