@@ -3,6 +3,7 @@
 // Copyright (c) 2026 BobTabo. All Rights Reserved.
 
 import 'package:flutter/material.dart';
+import '../config/app_config.dart';
 import '../config/backends.dart';
 
 /// バックエンド選択ボトムシートを表示する。
@@ -66,12 +67,13 @@ class _BackendSelectorSheet extends StatelessWidget {
                       (backend) => ListTile(
                         title: Text(backend.name),
                         subtitle: Text(
-                          '/function/${backend.slug}/api',
+                          AppConfig.apiBase(backend.slug),
                           style: const TextStyle(
                             fontSize: 12,
                             fontFamily: 'monospace',
                             color: Colors.grey,
                           ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                         trailing: selected.slug == backend.slug
                             ? const Icon(
