@@ -1,10 +1,11 @@
 # Flutter CI ワークフロー
-# developブランチへのpush、mainブランチへのPR時にCIを実行
+# feature/issue-* 以外へのpush、mainブランチへのPR時にCIを実行
 name: CI
 
 on:
   push:
-    branches: [develop]
+    branches-ignore:
+      - 'feature/issue-*'
   pull_request:
     branches: [main]
   workflow_dispatch:
