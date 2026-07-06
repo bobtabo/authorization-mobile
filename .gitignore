@@ -35,3 +35,6 @@ ios/.symlinks/
 
 # テストカバレッジ
 coverage/
+
+# デモ録画の中間ファイル（GIF は掲載用のため管理対象に含める）
+docs/demo.mp4
