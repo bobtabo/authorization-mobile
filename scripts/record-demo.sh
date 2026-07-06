@@ -42,6 +42,15 @@ usage() {
   echo "  android   接続中の Android エミュレーター/実機を録画します"
 }
 
+# 指定コマンドが存在しなければエラー終了する。
+#   $1: コマンド名 / $2: 見つからない場合の補足メッセージ
+require_cmd() {
+  if ! command -v "$1" >/dev/null 2>&1; then
+    echo "❌ $1 が見つかりません。$2"
+    exit 1
+  fi
+}
+
 # --- 引数チェック ---------------------------------------------------------
 if [ "$#" -ne 1 ]; then
   echo "❌ プラットフォームを引数で指定してください。"
@@ -70,36 +79,37 @@ if [ "$(uname -s)" != "Darwin" ]; then
 fi
 
 # --- 前提チェック ---------------------------------------------------------
-if ! command -v ffmpeg >/dev/null 2>&1; then
-  echo "❌ ffmpeg が見つかりません。GIF 変換に必要です。"
-  echo "   macOS では 'brew install ffmpeg' でインストールできます。"
-  exit 1
-fi
+require_cmd ffmpeg "GIF 変換に必要です。macOS では 'brew install ffmpeg' でインストールできます。"
 
 RECORD_PID=""
 
-# 録画プロセスが残っている場合に確実に停止させるためのクリーンアップ。
-cleanup() {
-  if [ -n "${RECORD_PID}" ] && kill -0 "${RECORD_PID}" 2>/dev/null; then
+# 録画プロセスに SIGINT を送って停止・回収する。多重呼び出ししても安全なように
+# RECORD_PID を空にして再入を防ぐ。cleanup（trap）と通常フローの両方から呼ばれる。
+stop_recording() {
+  if [ -n "${RECORD_PID}" ]; then
     kill -INT "${RECORD_PID}" 2>/dev/null || true
     wait "${RECORD_PID}" 2>/dev/null || true
+    RECORD_PID=""
   fi
 }
-trap cleanup EXIT
+trap stop_recording EXIT
 
 mkdir -p "${DOCS_DIR}"
 rm -f "${MP4_PATH}"
 
 start_ios_recording() {
-  if ! command -v xcrun >/dev/null 2>&1; then
-    echo "❌ xcrun が見つかりません。Xcode Command Line Tools が必要です。"
-    exit 1
-  fi
-  # 起動中の Simulator があるか確認。
-  if ! xcrun simctl list devices | grep -q "(Booted)"; then
+  require_cmd xcrun "Xcode Command Line Tools が必要です。"
+  # 起動中の Simulator 台数を確認。
+  local booted_count
+  booted_count=$(xcrun simctl list devices | grep -c "(Booted)" || true)
+  if [ "${booted_count}" -eq 0 ]; then
     echo "❌ 起動中の iOS Simulator が見つかりません。"
     echo "   'open -a Simulator' で起動してください。"
     exit 1
+  fi
+  if [ "${booted_count}" -gt 1 ]; then
+    echo "⚠  複数の Simulator が起動しています。録画対象は 'booted' の 1 台に依存します。"
+    echo "   意図しない端末を録画しないよう、録画したい 1 台のみ起動することを推奨します。"
   fi
   echo "🎬 iOS Simulator の録画を開始します..."
   # recordVideo は SIGINT で停止するため、バックグラウンド起動して PID を保持する。
@@ -108,10 +118,7 @@ start_ios_recording() {
 }
 
 start_android_recording() {
-  if ! command -v adb >/dev/null 2>&1; then
-    echo "❌ adb が見つかりません。Android SDK Platform-Tools が必要です。"
-    exit 1
-  fi
+  require_cmd adb "Android SDK Platform-Tools が必要です。"
   # 接続中のデバイス（device 状態）があるか確認。
   if ! adb get-state >/dev/null 2>&1; then
     echo "❌ 接続中の Android デバイス/エミュレーターが見つかりません。"
@@ -139,19 +146,48 @@ fi
 echo ""
 echo "▶  録画中です。デモ操作を行ってください。"
 echo "   終了するには Enter キーを押してください..."
-read -r _
 
-echo "⏹  録画を停止します..."
-# SIGINT を送って録画ファイルを正常にフラッシュさせる。
-kill -INT "${RECORD_PID}" 2>/dev/null || true
-wait "${RECORD_PID}" 2>/dev/null || true
-RECORD_PID=""
+# Enter 入力を待つ。ただし待機中も録画プロセスの生存を監視し、
+# time-limit 到達や異常終了で録画が先に止まった場合は検知して知らせる
+# （そのまま気づかず途中で切れた GIF を生成しないため）。
+stopped_early=false
+while kill -0 "${RECORD_PID}" 2>/dev/null; do
+  if read -r -t 1 _; then
+    break
+  fi
+done
+
+if ! kill -0 "${RECORD_PID}" 2>/dev/null; then
+  stopped_early=true
+  echo "⚠  Enter を押す前に録画プロセスが終了しました。"
+  echo "   time-limit（${ANDROID_TIME_LIMIT}秒）到達、または録画の異常終了の可能性があります。"
+  echo "   生成される動画が意図より短い場合は、再録画してください。"
+fi
+
+if [ "${stopped_early}" = false ]; then
+  echo "⏹  録画を停止します..."
+fi
+# SIGINT を送って録画ファイルを正常にフラッシュさせ、プロセスを回収する。
+stop_recording
 
 # Android はエミュレーター内に保存されるためローカルへ取得する。
 if [ "${PLATFORM}" = "android" ]; then
+  # ローカルの adb クライアントへの SIGINT がリモートの screenrecord まで
+  # 伝播しないケースに備え、リモート側にも明示的に停止シグナルを送る。
+  adb shell pkill -INT screenrecord 2>/dev/null || true
+
   echo "⬇  録画ファイルを取得中..."
-  # screenrecord がファイルを閉じるまで少し待つ。
-  sleep 1
+  # screenrecord がファイルを閉じる（サイズが安定する）まで待ってから pull する。
+  prev_size=-1
+  for _ in $(seq 1 20); do
+    size=$(adb shell "stat -c %s ${ANDROID_REMOTE_MP4} 2>/dev/null" | tr -d '\r' || echo 0)
+    size=${size:-0}
+    if [ "${size}" != "0" ] && [ "${size}" = "${prev_size}" ]; then
+      break
+    fi
+    prev_size="${size}"
+    sleep 0.5
+  done
   adb pull "${ANDROID_REMOTE_MP4}" "${MP4_PATH}"
   adb shell rm -f "${ANDROID_REMOTE_MP4}" 2>/dev/null || true
 fi
@@ -159,6 +195,16 @@ fi
 if [ ! -s "${MP4_PATH}" ]; then
   echo "❌ 録画ファイルが生成されませんでした: ${MP4_PATH}"
   exit 1
+fi
+
+# ffprobe があれば動画ストリームと再生時間を検証し、途中で切れた/壊れた mp4 を弾く。
+if command -v ffprobe >/dev/null 2>&1; then
+  duration=$(ffprobe -v error -show_entries format=duration \
+    -of default=noprint_wrappers=1:nokey=1 "${MP4_PATH}" 2>/dev/null || echo "")
+  if [ -z "${duration}" ]; then
+    echo "❌ 録画ファイルが壊れているか、動画ストリームを検出できません: ${MP4_PATH}"
+    exit 1
+  fi
 fi
 
 echo "🎞  GIF に変換中 (fps=${FPS}, scale=${SCALE_WIDTH}:-1)..."
