@@ -83,6 +83,12 @@ void main() {
 
   testWidgets('デモシナリオ: QRスキャン〜ステータス確認（利用停止はしない）', (tester) async {
     await tester.pumpWidget(const AuthorizationGatewayApp());
+    // 録画スクリプトへの合図。`flutter test` の "+0: " という汎用マーカーは
+    // ホスト側のテストランナーが開始したことを示すだけで、実機/エミュレータの
+    // 画面に実際にフレームが描画されたことまでは保証しない（録画開始が早すぎて
+    // スプラッシュ前のホーム画面が長く映り込む原因になっていた）。pumpWidget
+    // 完了直後＝最初のフレームが描画された直後にこの目印を出力する。
+    debugPrint('[[DEMO_APP_VISIBLE]]');
     await _hold(tester);
 
     // 1. スプラッシュ画面: 「QRコードをスキャン」

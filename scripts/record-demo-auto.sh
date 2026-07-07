@@ -119,16 +119,17 @@ cleanup() {
 trap cleanup EXIT
 
 # アプリの起動を待つ。ビルド〜インストールに時間がかかるため、録画は
-# 「テスト本体の実行が始まった瞬間」から開始し、無駄な待ち時間を録らない。
+# 「実際に最初のフレームが描画された瞬間」から開始し、無駄な待ち時間を録らない。
 #
-# Android の `pidof` はOSプロセスの存在確認に過ぎず、Flutter エンジンの初期化や
-# 最初のフレーム描画より前に true になる。そのため録画開始が早すぎて、
-# スプラッシュ画面が表示されるまでの端末のホーム画面（デスクトップ）が
-# 録画に長く映り込んでしまっていた。テスト本体（`testWidgets` のコールバック、
-# つまり `tester.pumpWidget(...)` の呼び出し）が実際に始まったことを示す
-# flutter test のレポーター出力（"+0: "）を両プラットフォーム共通の合図として使う。
+# `flutter test` のレポーター出力（"+0: "）はホスト側のテストランナーが
+# テストを開始したことを示すだけで、実機/エミュレータの画面に実際にフレームが
+# 描画されたことまでは保証しない（これを使うと録画開始が早すぎて、スプラッシュ
+# 前の端末のホーム画面が長く録画に映り込んでいた）。代わりに、
+# integration_test/demo_scenario_test.dart が pumpWidget 完了直後（＝最初の
+# フレーム描画直後）に出力する専用マーカー（DEMO_APP_VISIBLE_MARKER）を待つ。
 #   $1: flutter test のバックグラウンドPID / $2: flutter test の出力ログ
 # 戻り値: 0=起動を検知（またはタイムアウトで録画継続）/ 1=起動確認前にテストが終了した
+DEMO_APP_VISIBLE_MARKER='\[\[DEMO_APP_VISIBLE\]\]'
 wait_for_app_launch() {
   local test_pid="$1" log="$2"
   echo "⏳  アプリの起動を待機中..."
@@ -138,7 +139,7 @@ wait_for_app_launch() {
       echo "❌  アプリの起動を確認する前にテストプロセスが終了しました。"
       return 1
     fi
-    if grep -q '+0: ' "${log}" 2>/dev/null; then
+    if grep -q "${DEMO_APP_VISIBLE_MARKER}" "${log}" 2>/dev/null; then
       return 0
     fi
     sleep 0.5
