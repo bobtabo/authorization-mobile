@@ -160,15 +160,6 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                           child: Center(
                             child: FilledButton.icon(
                               onPressed: () async {
-                                // デモ録画時はカメラを起動していないため、
-                                // コントローラ操作を行わずダイアログのみ表示する。
-                                if (kDemoScanPreview) {
-                                  await _SimulatorFallback.showDialog(
-                                    context,
-                                    onScan: widget.onScan,
-                                  );
-                                  return;
-                                }
                                 // カメラ初期化前などは stop()/start() が例外を
                                 // 投げることがある（controllerInitializing）。
                                 // テストスキャンはカメラ状態に依存しないため、

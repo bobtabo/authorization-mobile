@@ -35,12 +35,14 @@ require_cmd() {
   fi
 }
 
-# 対象プラットフォーム（ios|android）を検証する。
+# 対象プラットフォーム（ios|android）を検証する。呼び出し側で usage() を
+# 定義しておくこと（不正な値のときにヘルプを表示する）。
 validate_platform() {
   case "$1" in
     ios | android) ;;
     *)
       echo "❌ 不明なプラットフォームです: $1"
+      usage
       exit 1
       ;;
   esac

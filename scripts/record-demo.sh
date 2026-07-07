@@ -44,18 +44,11 @@ if [ "$#" -ne 1 ]; then
 fi
 
 PLATFORM="$1"
-case "${PLATFORM}" in
-  ios | android) ;;
-  -h | --help)
-    usage
-    exit 0
-    ;;
-  *)
-    echo "❌ 不明なプラットフォームです: ${PLATFORM}"
-    usage
-    exit 1
-    ;;
-esac
+if [ "${PLATFORM}" = "-h" ] || [ "${PLATFORM}" = "--help" ]; then
+  usage
+  exit 0
+fi
+validate_platform "${PLATFORM}"
 
 # --- OS チェック（警告のみ）-----------------------------------------------
 warn_if_not_macos

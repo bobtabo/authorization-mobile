@@ -54,9 +54,6 @@ read_app_id() {
 APP_ID="$(read_app_id || true)"
 APP_ID="${APP_ID:-com.authorization.mobile}"
 
-# Android のカメラ権限付与を裏で繰り返すプロセスのPID。
-GRANT_PID=""
-
 usage() {
   echo "使い方: bash scripts/record-demo-auto.sh <ios|android> [device-id]"
   echo ""
@@ -73,18 +70,11 @@ if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
 fi
 
 PLATFORM="$1"
-case "${PLATFORM}" in
-  ios | android) ;;
-  -h | --help)
-    usage
-    exit 0
-    ;;
-  *)
-    echo "❌ 不明なプラットフォームです: ${PLATFORM}"
-    usage
-    exit 1
-    ;;
-esac
+if [ "${PLATFORM}" = "-h" ] || [ "${PLATFORM}" = "--help" ]; then
+  usage
+  exit 0
+fi
+validate_platform "${PLATFORM}"
 
 DEVICE_ID="${2:-}"
 
@@ -121,45 +111,26 @@ resolve_device_id
 
 echo "🎯 対象デバイス: ${DEVICE_ID}"
 
-# 録画プロセスとカメラ権限付与プロセスを確実に後始末する。
+# 録画プロセスを確実に後始末する。
 cleanup() {
   if [ -n "${TAIL_PID:-}" ]; then kill "${TAIL_PID}" 2>/dev/null || true; fi
-  stop_grant_loop
   stop_recording
 }
 trap cleanup EXIT
 
-# Android: 初回インストール時のカメラ権限ダイアログがデモ操作を妨げないよう、
-# テスト実行中はカメラ権限を裏で付与し続ける（付与済みなら冪等に成功する）。
-start_grant_loop() {
-  [ "${PLATFORM}" = "android" ] || return 0
-  (
-    while true; do
-      adb -s "${DEVICE_ID}" shell pm grant "${APP_ID}" \
-        android.permission.CAMERA >/dev/null 2>&1 || true
-      sleep 1
-    done
-  ) &
-  GRANT_PID=$!
-}
-
-stop_grant_loop() {
-  if [ -n "${GRANT_PID}" ] && kill -0 "${GRANT_PID}" 2>/dev/null; then
-    kill "${GRANT_PID}" 2>/dev/null || true
-    wait "${GRANT_PID}" 2>/dev/null || true
-  fi
-  GRANT_PID=""
-}
-
 # アプリの起動を待つ。ビルド〜インストールに時間がかかるため、録画は
 # 「アプリのプロセスが起動した瞬間」から開始し、無駄な待ち時間を録らない。
 #   $1: flutter test のバックグラウンドPID / $2: flutter test の出力ログ
+# 戻り値: 0=起動を検知（またはタイムアウトで録画継続）/ 1=起動確認前にテストが終了した
 wait_for_app_launch() {
   local test_pid="$1" log="$2"
   echo "⏳  アプリの起動を待機中..."
   for _ in $(seq 1 240); do
-    # テストプロセスが先に終了したら待機を打ち切る。
-    kill -0 "${test_pid}" 2>/dev/null || return 0
+    # テストプロセスが先に終了した場合、録画しても無意味なので打ち切る。
+    if ! kill -0 "${test_pid}" 2>/dev/null; then
+      echo "❌  アプリの起動を確認する前にテストプロセスが終了しました。"
+      return 1
+    fi
     case "${PLATFORM}" in
       android)
         if adb -s "${DEVICE_ID}" shell pidof "${APP_ID}" >/dev/null 2>&1; then
@@ -176,11 +147,14 @@ wait_for_app_launch() {
     sleep 0.5
   done
   echo "⚠  アプリ起動を検出できませんでした。そのまま録画を開始します。"
+  return 0
 }
 
 # --- デモ実行＆録画 -------------------------------------------------------
-# 権限付与はアプリ起動前から始めておく（スキャナー画面表示時の権限ダイアログを防ぐ）。
-start_grant_loop
+if [ "${PLATFORM}" = "android" ]; then
+  # 前回実行の残留プロセスがあると起動検知が誤検知するため、事前に停止しておく。
+  adb -s "${DEVICE_ID}" shell am force-stop "${APP_ID}" 2>/dev/null || true
+fi
 
 echo ""
 echo "▶  デモ操作を自動再生します（${TEST_TARGET}）..."
@@ -196,7 +170,16 @@ TEST_LOG="$(mktemp "${TMPDIR:-/tmp}/record-demo-auto.XXXXXX.log")"
 TEST_BG_PID=$!
 
 # アプリ起動を待ってから録画開始（ビルド待ち時間を録画に含めない）。
-wait_for_app_launch "${TEST_BG_PID}" "${TEST_LOG}"
+# テストプロセスが起動確認前に終了していたら、録画せずそのままログを見せて終了する。
+if ! wait_for_app_launch "${TEST_BG_PID}" "${TEST_LOG}"; then
+  TEST_STATUS=0
+  wait "${TEST_BG_PID}" || TEST_STATUS=$?
+  echo ""
+  echo "⚠  integration_test の出力:"
+  cat "${TEST_LOG}"
+  rm -f "${TEST_LOG}"
+  exit "${TEST_STATUS}"
+fi
 start_recording "${PLATFORM}"
 
 # テスト出力をリアルタイム表示しつつ、完了を待つ。
@@ -205,16 +188,18 @@ TAIL_PID=$!
 TEST_STATUS=0
 wait "${TEST_BG_PID}" || TEST_STATUS=$?
 kill "${TAIL_PID}" 2>/dev/null || true
+wait "${TAIL_PID}" 2>/dev/null || true
 
 echo ""
 echo "⏹  録画を停止します..."
-stop_grant_loop
 stop_recording
-rm -f "${TEST_LOG}"
 
 if [ "${TEST_STATUS}" -ne 0 ]; then
   echo "⚠  integration_test が失敗しました（exit=${TEST_STATUS}）。"
   echo "   録画は途中まで保存されている可能性があります。内容を確認してください。"
+  echo "   ログ: ${TEST_LOG}"
+else
+  rm -f "${TEST_LOG}"
 fi
 
 # --- 後処理（Android 取得・検証・GIF 変換）-------------------------------
