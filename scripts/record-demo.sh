@@ -54,7 +54,7 @@ validate_platform "${PLATFORM}"
 warn_if_not_macos
 
 # --- 前提チェック・準備 ---------------------------------------------------
-prepare_output_dir
+prepare_output_dir "${PLATFORM}"
 
 trap stop_recording EXIT
 

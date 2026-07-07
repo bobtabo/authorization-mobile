@@ -112,10 +112,14 @@ flutter run -d iPhone          # iOS Simulator
 デモ操作の録画から GIF 変換までを一発で行うスクリプトを用意しています。
 用途に応じて **自動操作版** と **手動操作版** の 2 種類があります。
 
+出力は iOS / Android で別ディレクトリに分かれます。
+
 | 出力 | 説明 |
 |:---|:---|
-| `docs/demo.mp4` | 録画ファイル（中間・`.gitignore` 対象） |
-| `docs/demo.gif` | 変換後 GIF（README / Notion 掲載用） |
+| `docs/ios/demo.mp4` | iOS 録画ファイル（中間・`.gitignore` 対象） |
+| `docs/ios/demo.gif` | iOS 変換後 GIF（README / Notion 掲載用） |
+| `docs/android/demo.mp4` | Android 録画ファイル（中間・`.gitignore` 対象） |
+| `docs/android/demo.gif` | Android 変換後 GIF（README / Notion 掲載用） |
 
 ### 自動操作版（推奨）
 
@@ -153,10 +157,6 @@ bash scripts/record-demo-auto.sh android emulator-5554
 ```bash
 flutter test integration_test/demo_scenario_test.dart -d <device-id>
 ```
-
-> [!NOTE]
-> Android エミュレーターでは初回インストール時にカメラ権限ダイアログが表示され操作を妨げることがあるため、
-> `scripts/record-demo-auto.sh` は実行中にカメラ権限を自動付与します。
 
 ### 手動操作版
 

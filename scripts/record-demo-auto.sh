@@ -106,7 +106,7 @@ warn_if_not_macos
 
 # --- 前提チェック・準備 ---------------------------------------------------
 require_cmd flutter "Flutter SDK が必要です。https://docs.flutter.dev/get-started/install"
-prepare_output_dir
+prepare_output_dir "${PLATFORM}"
 resolve_device_id
 
 echo "🎯 対象デバイス: ${DEVICE_ID}"

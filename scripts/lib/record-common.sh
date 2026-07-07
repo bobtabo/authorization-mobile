@@ -17,11 +17,6 @@ SCALE_WIDTH="${SCALE_WIDTH:-390}"
 ANDROID_TIME_LIMIT="${ANDROID_TIME_LIMIT:-180}"
 ANDROID_REMOTE_MP4="/sdcard/demo.mp4"
 
-# 出力パス（ROOT_DIR は source 側で定義済みであること）
-DOCS_DIR="${ROOT_DIR}/docs"
-MP4_PATH="${DOCS_DIR}/demo.mp4"
-GIF_PATH="${DOCS_DIR}/demo.gif"
-
 RECORD_PID=""
 # 録画中のプラットフォーム（stop_recording が停止方法を切り替えるために保持）。
 RECORD_PLATFORM=""
@@ -56,9 +51,14 @@ warn_if_not_macos() {
   fi
 }
 
-# 出力ディレクトリを準備し、既存の中間 MP4 を削除する。
+# 出力ディレクトリ（プラットフォーム別）を準備し、既存の中間 MP4 を削除する。
+# ROOT_DIR/docs/<platform>/ 配下に demo.mp4・demo.gif を出力する。
+#   $1: ios|android
 prepare_output_dir() {
   require_cmd ffmpeg "GIF 変換に必要です。macOS では 'brew install ffmpeg' でインストールできます。"
+  DOCS_DIR="${ROOT_DIR}/docs/$1"
+  MP4_PATH="${DOCS_DIR}/demo.mp4"
+  GIF_PATH="${DOCS_DIR}/demo.gif"
   mkdir -p "${DOCS_DIR}"
   rm -f "${MP4_PATH}"
 }
