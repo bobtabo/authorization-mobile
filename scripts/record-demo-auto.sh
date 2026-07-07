@@ -119,7 +119,14 @@ cleanup() {
 trap cleanup EXIT
 
 # アプリの起動を待つ。ビルド〜インストールに時間がかかるため、録画は
-# 「アプリのプロセスが起動した瞬間」から開始し、無駄な待ち時間を録らない。
+# 「テスト本体の実行が始まった瞬間」から開始し、無駄な待ち時間を録らない。
+#
+# Android の `pidof` はOSプロセスの存在確認に過ぎず、Flutter エンジンの初期化や
+# 最初のフレーム描画より前に true になる。そのため録画開始が早すぎて、
+# スプラッシュ画面が表示されるまでの端末のホーム画面（デスクトップ）が
+# 録画に長く映り込んでしまっていた。テスト本体（`testWidgets` のコールバック、
+# つまり `tester.pumpWidget(...)` の呼び出し）が実際に始まったことを示す
+# flutter test のレポーター出力（"+0: "）を両プラットフォーム共通の合図として使う。
 #   $1: flutter test のバックグラウンドPID / $2: flutter test の出力ログ
 # 戻り値: 0=起動を検知（またはタイムアウトで録画継続）/ 1=起動確認前にテストが終了した
 wait_for_app_launch() {
@@ -131,19 +138,9 @@ wait_for_app_launch() {
       echo "❌  アプリの起動を確認する前にテストプロセスが終了しました。"
       return 1
     fi
-    case "${PLATFORM}" in
-      android)
-        if adb -s "${DEVICE_ID}" shell pidof "${APP_ID}" >/dev/null 2>&1; then
-          return 0
-        fi
-        ;;
-      *)
-        # iOS など: flutter test がテスト本体の実行を開始した合図を待つ。
-        if grep -q '+0: ' "${log}" 2>/dev/null; then
-          return 0
-        fi
-        ;;
-    esac
+    if grep -q '+0: ' "${log}" 2>/dev/null; then
+      return 0
+    fi
     sleep 0.5
   done
   echo "⚠  アプリ起動を検出できませんでした。そのまま録画を開始します。"
@@ -152,7 +149,7 @@ wait_for_app_launch() {
 
 # --- デモ実行＆録画 -------------------------------------------------------
 if [ "${PLATFORM}" = "android" ]; then
-  # 前回実行の残留プロセスがあると起動検知が誤検知するため、事前に停止しておく。
+  # 前回実行の残留プロセスが状態に影響しないよう、事前に停止しておく。
   adb -s "${DEVICE_ID}" shell am force-stop "${APP_ID}" 2>/dev/null || true
 fi
 
