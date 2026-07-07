@@ -128,13 +128,21 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                           child: Center(
                             child: FilledButton.icon(
                               onPressed: () async {
-                                _controller.stop();
+                                // カメラ初期化前などは stop()/start() が例外を
+                                // 投げることがある（controllerInitializing）。
+                                // テストスキャンはカメラ状態に依存しないため、
+                                // 失敗しても無視してダイアログ表示を優先する。
+                                try {
+                                  await _controller.stop();
+                                } catch (_) {}
                                 if (!context.mounted) return;
                                 await _SimulatorFallback.showDialog(
                                   context,
                                   onScan: widget.onScan,
                                 );
-                                _controller.start();
+                                try {
+                                  await _controller.start();
+                                } catch (_) {}
                               },
                               icon: const Icon(Icons.qr_code, size: 16),
                               label: const Text('テストスキャン'),
