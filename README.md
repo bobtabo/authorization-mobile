@@ -59,6 +59,7 @@
 - Flutter 3.41.9 以上
 - Xcode（iOS ビルド）
 - Android Studio / Android SDK（Android ビルド）
+- `ffmpeg`（デモ録画の GIF 変換に使用。macOS では `brew install ffmpeg`）
 
 > [!NOTE]
 > iOS Simulator / Android エミュレーターのセットアップは各自で行ってください。
@@ -103,6 +104,31 @@ flutter devices
 flutter run -d emulator-5554   # Android
 flutter run -d iPhone          # iOS Simulator
 ```
+
+---
+
+## :movie_camera: デモ録画・GIF 変換
+
+デモ操作の録画から GIF 変換までを一発で行うスクリプトを用意しています。
+
+```bash
+# iOS Simulator を録画（事前に open -a Simulator で起動しておく）
+bash scripts/record-demo.sh ios
+
+# Android エミュレーターを録画（事前にエミュレーターを起動しておく）
+bash scripts/record-demo.sh android
+```
+
+録画が開始されたらデモ操作を行い、**Enter キー**で停止すると GIF に変換されます。
+
+| 出力 | 説明 |
+|:---|:---|
+| `docs/demo.mp4` | 録画ファイル（中間・`.gitignore` 対象） |
+| `docs/demo.gif` | 変換後 GIF（README / Notion 掲載用） |
+
+> [!NOTE]
+> `ffmpeg` が必要です（macOS では `brew install ffmpeg`）。
+> GIF のサイズが大きい場合は `FPS=8 SCALE_WIDTH=320 bash scripts/record-demo.sh ios` のように調整できます。
 
 ---
 
