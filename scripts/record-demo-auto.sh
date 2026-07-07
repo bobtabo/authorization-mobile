@@ -186,8 +186,12 @@ echo ""
 echo "▶  デモ操作を自動再生します（${TEST_TARGET}）..."
 
 # integration_test をバックグラウンドで実行し、出力はログに保存する。
+# DEMO_SCAN_PREVIEW=true を渡すことで、スキャナー画面が実機カメラの代わりに
+# サンプルQRコードをプレビュー表示する（エミュレーター/シミュレーターでも
+# 「QRコードを読み取っている」様子を録画できる）。本番ビルドには影響しない。
 TEST_LOG="$(mktemp "${TMPDIR:-/tmp}/record-demo-auto.XXXXXX.log")"
-(cd "${ROOT_DIR}" && flutter test "${TEST_TARGET}" -d "${DEVICE_ID}") \
+(cd "${ROOT_DIR}" && flutter test "${TEST_TARGET}" -d "${DEVICE_ID}" \
+  --dart-define=DEMO_SCAN_PREVIEW=true) \
   >"${TEST_LOG}" 2>&1 &
 TEST_BG_PID=$!
 

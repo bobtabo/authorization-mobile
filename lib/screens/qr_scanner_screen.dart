@@ -7,6 +7,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
+/// デモ録画時のみ有効化するフラグ（`--dart-define=DEMO_SCAN_PREVIEW=true`）。
+///
+/// 実機カメラの代わりにサンプルQRコード画像をプレビュー表示し、カメラを持たない
+/// エミュレーター/シミュレーター上でも「QRコードを読み取っている」様子を再現する。
+/// 本番ビルドでは既定 `false` のため、実際のカメラ動作には一切影響しない。
+const bool kDemoScanPreview = bool.fromEnvironment('DEMO_SCAN_PREVIEW');
+
 /// QRコードをスキャンして結果を返す画面。
 class QRScannerScreen extends StatefulWidget {
   /// スキャン成功時にQRコードの値を渡すコールバック。
@@ -103,12 +110,17 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                         aspectRatio: 1,
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(24),
-                          child: MobileScanner(
-                            controller: _controller,
-                            onDetect: _onDetect,
-                            errorBuilder: (context, error) =>
-                                _SimulatorFallback(onScan: widget.onScan),
-                          ),
+                          child: kDemoScanPreview
+                              ? Image.asset(
+                                  'assets/demo_qr.png',
+                                  fit: BoxFit.cover,
+                                )
+                              : MobileScanner(
+                                  controller: _controller,
+                                  onDetect: _onDetect,
+                                  errorBuilder: (context, error) =>
+                                      _SimulatorFallback(onScan: widget.onScan),
+                                ),
                         ),
                       ),
                       // 外枠（点滅）
@@ -128,6 +140,15 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                           child: Center(
                             child: FilledButton.icon(
                               onPressed: () async {
+                                // デモ録画時はカメラを起動していないため、
+                                // コントローラ操作を行わずダイアログのみ表示する。
+                                if (kDemoScanPreview) {
+                                  await _SimulatorFallback.showDialog(
+                                    context,
+                                    onScan: widget.onScan,
+                                  );
+                                  return;
+                                }
                                 // カメラ初期化前などは stop()/start() が例外を
                                 // 投げることがある（controllerInitializing）。
                                 // テストスキャンはカメラ状態に依存しないため、

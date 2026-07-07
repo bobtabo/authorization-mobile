@@ -139,6 +139,14 @@ bash scripts/record-demo-auto.sh android emulator-5554
 > API 応答（クライアント情報・アクセストークン）はすべて `MockClient` でモックするため、
 > 認可サーバーのセットアップや `.env` の設定なしで実行できます。
 
+> [!NOTE]
+> エミュレーター/シミュレーターには実カメラがないため、`scripts/record-demo-auto.sh` は
+> `--dart-define=DEMO_SCAN_PREVIEW=true` を付与し、スキャナー画面に実機カメラの代わりに
+> サンプル QR コード（`assets/demo_qr.png`）をプレビュー表示します。これにより録画に
+> 実在の部屋（エミュレーターの仮想シーン）が映り込まず、「QR コードを読み取っている」
+> 様子を再現できます。このフラグは録画時のみ有効で、本番ビルド（既定 `false`）の
+> カメラ動作には一切影響しません。
+
 デモシナリオの実体は [`integration_test/demo_scenario_test.dart`](integration_test/demo_scenario_test.dart) です。
 録画なしでシナリオだけを実行・確認することもできます。
 

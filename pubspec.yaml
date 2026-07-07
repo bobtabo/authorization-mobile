@@ -71,6 +71,7 @@ flutter:
   assets:
     - assets/icon.svg
     - assets/icon.png
+    - assets/demo_qr.png
     - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see
