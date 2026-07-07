@@ -14,6 +14,10 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 /// 本番ビルドでは既定 `false` のため、実際のカメラ動作には一切影響しない。
 const bool kDemoScanPreview = bool.fromEnvironment('DEMO_SCAN_PREVIEW');
 
+/// デモプレビュー時に「読み取れた」ことにする QR コードの値。
+/// `assets/demo_qr.png` にエンコードされている値と一致させる。
+const String _kDemoScanValue = 'authgateway://clients/client_test_001/info';
+
 /// QRコードをスキャンして結果を返す画面。
 class QRScannerScreen extends StatefulWidget {
   /// スキャン成功時にQRコードの値を渡すコールバック。
@@ -36,6 +40,21 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
   final MobileScannerController _controller = MobileScannerController();
   bool _flashOn = false;
   bool _scanned = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (kDemoScanPreview) {
+      // デモ録画では実カメラの代わりにサンプルQRを表示しているため、
+      // 少し見せてから「読み取れた」ことにして自動で次の画面へ進める。
+      // テストスキャンのような操作はデモには登場させない。
+      Future.delayed(const Duration(milliseconds: 1800), () {
+        if (!mounted || _scanned) return;
+        _scanned = true;
+        widget.onScan(_kDemoScanValue);
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -132,7 +151,8 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                         child: IgnorePointer(child: _ScannerCorners()),
                       ),
                       // デバッグ用テストスキャンボタン
-                      if (kDebugMode)
+                      // （デモプレビュー時は自動スキャンするため表示しない）
+                      if (kDebugMode && !kDemoScanPreview)
                         Positioned(
                           bottom: 12,
                           left: 0,

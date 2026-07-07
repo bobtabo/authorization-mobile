@@ -39,6 +39,10 @@ const _demoToken = 'demo-access-token-xxxxxxxx';
 /// ClientStatus: Pending=0, Inactive=1, Active=2, Suspended=3, Closed=4
 const _statusPreparing = 0;
 
+/// 録画時（`--dart-define=DEMO_SCAN_PREVIEW=true`）はスキャナー画面がサンプルQRを
+/// 表示し、自動的にスキャンが成立する。この場合はテストスキャン操作を行わない。
+const _demoScanPreview = bool.fromEnvironment('DEMO_SCAN_PREVIEW');
+
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
@@ -86,21 +90,29 @@ void main() {
     await tester.tap(find.text('QRコードをスキャン'));
     await _hold(tester);
 
-    // 2. QRスキャナー画面: 「テストスキャン」ボタンをタップする。
-    //    - iOS Simulator など カメラが無い環境: errorBuilder が
-    //      _SimulatorFallback を表示し、その中のボタンが先頭になる。
-    //    - カメラが使えるエミュレーター: kDebugMode のオーバーレイボタンが表示
-    //      される。integration_test 実行中はカメラプレビューが初期化されない
-    //      ことがあるが、ボタン側で stop()/start() の例外を握りつぶしているため
-    //      問題なくダイアログを開ける。
-    //    どちらの環境でも widget ツリー先頭の「テストスキャン」を選べばよい。
-    await _hold(tester);
-    await tester.tap(find.text('テストスキャン').first);
-    await _hold(tester);
+    // 2. QRスキャナー画面
+    if (_demoScanPreview) {
+      // 録画モード: サンプルQRコードのプレビューが表示され、少し待つと自動的に
+      // スキャンが成立して次の画面へ遷移する。テストスキャン操作は行わない。
+      await _hold(tester, ms: 3000);
+    } else {
+      // 通常モード（カメラの無い環境など）: 「テストスキャン」ボタンをタップして
+      // 値を入力し、擬似的にスキャンを成立させる。
+      //    - iOS Simulator など カメラが無い環境: errorBuilder が
+      //      _SimulatorFallback を表示し、その中のボタンが先頭になる。
+      //    - カメラが使えるエミュレーター: kDebugMode のオーバーレイボタンが表示
+      //      される。integration_test 実行中はカメラプレビューが初期化されない
+      //      ことがあるが、ボタン側で stop()/start() の例外を握りつぶしているため
+      //      問題なくダイアログを開ける。
+      //    どちらの環境でも widget ツリー先頭の「テストスキャン」を選べばよい。
+      await _hold(tester);
+      await tester.tap(find.text('テストスキャン').first);
+      await _hold(tester);
 
-    // 3. テストスキャンダイアログ: 値は編集不要のまま「スキャン」
-    await tester.tap(find.widgetWithText(FilledButton, 'スキャン'));
-    await _hold(tester);
+      // 3. テストスキャンダイアログ: 値は編集不要のまま「スキャン」
+      await tester.tap(find.widgetWithText(FilledButton, 'スキャン'));
+      await _hold(tester);
+    }
 
     // 4. クライアント情報確認画面: 情報を確認して「利用開始する」
     expect(find.text(_clientName), findsWidgets);
