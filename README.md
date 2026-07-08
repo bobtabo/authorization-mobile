@@ -121,6 +121,13 @@ flutter run -d iPhone          # iOS Simulator
 | `docs/android/demo.mp4` | Android 録画ファイル（中間・`.gitignore` 対象） |
 | `docs/android/demo.gif` | Android 変換後 GIF（README / Notion 掲載用） |
 
+QRコードをスキャンしてクライアント情報を確認し、利用開始してアクセストークンを
+取得、ホーム画面でステータスを確認するまでの一連の流れです。
+
+| iOS | Android |
+|:---:|:---:|
+| ![iOS デモ](docs/ios/demo.gif) | ![Android デモ](docs/android/demo.gif) |
+
 ### 自動操作版（推奨）
 
 `integration_test` でデモ操作（QRスキャン → クライアント情報確認 → 利用開始 →
