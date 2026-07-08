@@ -7,6 +7,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
+/// デモ録画時のみ有効化するフラグ（`--dart-define=DEMO_SCAN_PREVIEW=true`）。
+///
+/// 実機カメラの代わりにサンプルQRコード画像をプレビュー表示し、カメラを持たない
+/// エミュレーター/シミュレーター上でも「QRコードを読み取っている」様子を再現する。
+/// 本番ビルドでは既定 `false` のため、実際のカメラ動作には一切影響しない。
+const bool kDemoScanPreview = bool.fromEnvironment('DEMO_SCAN_PREVIEW');
+
+/// デモプレビュー時に「読み取れた」ことにする QR コードの値。
+/// `assets/demo_qr.png` にエンコードされている値と一致させる。
+const String _kDemoScanValue = 'authgateway://clients/client_test_001/info';
+
 /// QRコードをスキャンして結果を返す画面。
 class QRScannerScreen extends StatefulWidget {
   /// スキャン成功時にQRコードの値を渡すコールバック。
@@ -29,6 +40,21 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
   final MobileScannerController _controller = MobileScannerController();
   bool _flashOn = false;
   bool _scanned = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (kDemoScanPreview) {
+      // デモ録画では実カメラの代わりにサンプルQRを表示しているため、
+      // 少し見せてから「読み取れた」ことにして自動で次の画面へ進める。
+      // テストスキャンのような操作はデモには登場させない。
+      Future.delayed(const Duration(milliseconds: 1800), () {
+        if (!mounted || _scanned) return;
+        _scanned = true;
+        widget.onScan(_kDemoScanValue);
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -103,12 +129,17 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                         aspectRatio: 1,
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(24),
-                          child: MobileScanner(
-                            controller: _controller,
-                            onDetect: _onDetect,
-                            errorBuilder: (context, error) =>
-                                _SimulatorFallback(onScan: widget.onScan),
-                          ),
+                          child: kDemoScanPreview
+                              ? Image.asset(
+                                  'assets/demo_qr.png',
+                                  fit: BoxFit.cover,
+                                )
+                              : MobileScanner(
+                                  controller: _controller,
+                                  onDetect: _onDetect,
+                                  errorBuilder: (context, error) =>
+                                      _SimulatorFallback(onScan: widget.onScan),
+                                ),
                         ),
                       ),
                       // 外枠（点滅）
@@ -120,7 +151,8 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                         child: IgnorePointer(child: _ScannerCorners()),
                       ),
                       // デバッグ用テストスキャンボタン
-                      if (kDebugMode)
+                      // （デモプレビュー時は自動スキャンするため表示しない）
+                      if (kDebugMode && !kDemoScanPreview)
                         Positioned(
                           bottom: 12,
                           left: 0,
@@ -128,13 +160,21 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                           child: Center(
                             child: FilledButton.icon(
                               onPressed: () async {
-                                _controller.stop();
+                                // カメラ初期化前などは stop()/start() が例外を
+                                // 投げることがある（controllerInitializing）。
+                                // テストスキャンはカメラ状態に依存しないため、
+                                // 失敗しても無視してダイアログ表示を優先する。
+                                try {
+                                  await _controller.stop();
+                                } catch (_) {}
                                 if (!context.mounted) return;
                                 await _SimulatorFallback.showDialog(
                                   context,
                                   onScan: widget.onScan,
                                 );
-                                _controller.start();
+                                try {
+                                  await _controller.start();
+                                } catch (_) {}
                               },
                               icon: const Icon(Icons.qr_code, size: 16),
                               label: const Text('テストスキャン'),

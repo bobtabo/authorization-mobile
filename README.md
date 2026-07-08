@@ -110,6 +110,58 @@ flutter run -d iPhone          # iOS Simulator
 ## :movie_camera: デモ録画・GIF 変換
 
 デモ操作の録画から GIF 変換までを一発で行うスクリプトを用意しています。
+用途に応じて **自動操作版** と **手動操作版** の 2 種類があります。
+
+出力は iOS / Android で別ディレクトリに分かれます。
+
+| 出力 | 説明 |
+|:---|:---|
+| `docs/ios/demo.mp4` | iOS 録画ファイル（中間・`.gitignore` 対象） |
+| `docs/ios/demo.gif` | iOS 変換後 GIF（README / Notion 掲載用） |
+| `docs/android/demo.mp4` | Android 録画ファイル（中間・`.gitignore` 対象） |
+| `docs/android/demo.gif` | Android 変換後 GIF（README / Notion 掲載用） |
+
+### 自動操作版（推奨）
+
+`integration_test` でデモ操作（QRスキャン → クライアント情報確認 → 利用開始 →
+アクセストークン表示 → ホーム画面でステータス確認）を**自動再生**しながら録画し、
+GIF まで変換します。人手での操作は不要です。
+
+```bash
+# iOS Simulator（事前に open -a Simulator で起動しておく）
+bash scripts/record-demo-auto.sh ios
+
+# Android エミュレーター（事前にエミュレーターを起動しておく）
+bash scripts/record-demo-auto.sh android
+
+# デバイスIDを明示指定することも可能（省略時は起動中の端末を自動検出）
+bash scripts/record-demo-auto.sh android emulator-5554
+```
+
+> [!IMPORTANT]
+> このデモは**実サーバー（LocalStack / ngrok / 実バックエンド）に一切接続しません**。
+> API 応答（クライアント情報・アクセストークン）はすべて `MockClient` でモックするため、
+> 認可サーバーのセットアップや `.env` の設定なしで実行できます。
+
+> [!NOTE]
+> エミュレーター/シミュレーターには実カメラがないため、`scripts/record-demo-auto.sh` は
+> `--dart-define=DEMO_SCAN_PREVIEW=true` を付与し、スキャナー画面に実機カメラの代わりに
+> サンプル QR コード（`assets/demo_qr.png`）をプレビュー表示します。これにより録画に
+> 実在の部屋（エミュレーターの仮想シーン）が映り込まず、「QR コードを読み取っている」
+> 様子を再現できます。このフラグは録画時のみ有効で、本番ビルド（既定 `false`）の
+> カメラ動作には一切影響しません。
+
+デモシナリオの実体は [`integration_test/demo_scenario_test.dart`](integration_test/demo_scenario_test.dart) です。
+録画なしでシナリオだけを実行・確認することもできます。
+
+```bash
+flutter test integration_test/demo_scenario_test.dart -d <device-id>
+```
+
+### 手動操作版
+
+録画を開始し、自分でアプリを操作して **Enter キー**で停止すると GIF に変換されます。
+自動シナリオに含まれない操作（利用停止など）を録画したい場合に使います。
 
 ```bash
 # iOS Simulator を録画（事前に open -a Simulator で起動しておく）
@@ -119,16 +171,9 @@ bash scripts/record-demo.sh ios
 bash scripts/record-demo.sh android
 ```
 
-録画が開始されたらデモ操作を行い、**Enter キー**で停止すると GIF に変換されます。
-
-| 出力 | 説明 |
-|:---|:---|
-| `docs/demo.mp4` | 録画ファイル（中間・`.gitignore` 対象） |
-| `docs/demo.gif` | 変換後 GIF（README / Notion 掲載用） |
-
 > [!NOTE]
-> `ffmpeg` が必要です（macOS では `brew install ffmpeg`）。
-> GIF のサイズが大きい場合は `FPS=8 SCALE_WIDTH=320 bash scripts/record-demo.sh ios` のように調整できます。
+> どちらも `ffmpeg` が必要です（macOS では `brew install ffmpeg`）。
+> GIF のサイズが大きい場合は `FPS=8 SCALE_WIDTH=320 bash scripts/record-demo-auto.sh ios` のように調整できます。
 
 ---
 
