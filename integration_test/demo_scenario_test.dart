@@ -27,6 +27,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:integration_test/integration_test.dart';
 
+import 'package:authorization_mobile/demo/tap_indicator.dart';
 import 'package:authorization_mobile/main.dart';
 import 'package:authorization_mobile/services/api_service.dart';
 
@@ -93,7 +94,7 @@ void main() {
 
     // 1. スプラッシュ画面: 「QRコードをスキャン」
     expect(find.text('QRコードをスキャン'), findsOneWidget);
-    await tester.tap(find.text('QRコードをスキャン'));
+    await _tapWithIndicator(tester, find.text('QRコードをスキャン'));
     await _hold(tester);
 
     // 2. QRスキャナー画面
@@ -112,27 +113,36 @@ void main() {
       //      問題なくダイアログを開ける。
       //    どちらの環境でも widget ツリー先頭の「テストスキャン」を選べばよい。
       await _hold(tester);
-      await tester.tap(find.text('テストスキャン').first);
+      await _tapWithIndicator(tester, find.text('テストスキャン').first);
       await _hold(tester);
 
       // 3. テストスキャンダイアログ: 値は編集不要のまま「スキャン」
-      await tester.tap(find.widgetWithText(FilledButton, 'スキャン'));
+      await _tapWithIndicator(
+        tester,
+        find.widgetWithText(FilledButton, 'スキャン'),
+      );
       await _hold(tester);
     }
 
     // 4. クライアント情報確認画面: 情報を確認して「利用開始する」
     expect(find.text(_clientName), findsWidgets);
     expect(find.text(_clientEmail), findsWidgets);
-    await tester.tap(find.widgetWithText(ElevatedButton, '利用開始する'));
+    await _tapWithIndicator(
+      tester,
+      find.widgetWithText(ElevatedButton, '利用開始する'),
+    );
     await _hold(tester);
 
     // 5. アクセストークン表示画面: トークンを確認して閉じる
     expect(find.text(_demoToken), findsOneWidget);
-    await tester.tap(find.widgetWithText(ElevatedButton, 'この画面を閉じる'));
+    await _tapWithIndicator(
+      tester,
+      find.widgetWithText(ElevatedButton, 'この画面を閉じる'),
+    );
     await _hold(tester);
 
     // 5-1. 閉じる確認ダイアログ（2段階）: 「閉じる」
-    await tester.tap(find.widgetWithText(ElevatedButton, '閉じる'));
+    await _tapWithIndicator(tester, find.widgetWithText(ElevatedButton, '閉じる'));
     await _hold(tester);
 
     // 6. ホーム画面: ステータス「利用中」を確認して終了（利用停止はしない）
@@ -151,4 +161,17 @@ Future<void> _hold(WidgetTester tester, {int ms = 1500}) async {
   while (DateTime.now().isBefore(deadline)) {
     await tester.pump(const Duration(milliseconds: 60));
   }
+}
+
+/// `tester.tap` は瞬時に処理され実カーソルも存在しないため、録画だけを見ると
+/// 画面が勝手に動いているように見える。`--dart-define=DEMO_TAP_INDICATOR=true`
+/// の場合、タップ座標に波紋アニメーション（[DemoTapIndicatorOverlay]）を表示
+/// してから実際にタップし、操作箇所を視覚的にわかるようにする。
+Future<void> _tapWithIndicator(WidgetTester tester, Finder finder) async {
+  if (kDemoTapIndicator) {
+    final center = tester.getCenter(finder);
+    demoTapIndicatorController.show(center);
+    await _hold(tester, ms: 400);
+  }
+  await tester.tap(finder);
 }
