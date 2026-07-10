@@ -133,8 +133,12 @@ void main() {
     );
     await _hold(tester);
 
-    // 5. アクセストークン表示画面: トークンを確認して閉じる
+    // 5. アクセストークン表示画面: トークンを確認し、コピーしてから閉じる
+    // （発行されたトークンをどこかに残す操作を経ずに閉じてしまうと、デモとして
+    // 「保存し忘れた」ように見えるため、コピー操作を挟む）
     expect(find.text(_demoToken), findsOneWidget);
+    await _tapWithIndicator(tester, find.widgetWithText(ElevatedButton, 'コピー'));
+    await _hold(tester);
     await _tapWithIndicator(
       tester,
       find.widgetWithText(ElevatedButton, 'この画面を閉じる'),
