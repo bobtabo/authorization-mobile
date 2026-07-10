@@ -8,6 +8,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:app_links/app_links.dart';
 import 'config/app_config.dart';
 import 'config/backends.dart';
+import 'demo/tap_indicator.dart';
 import 'models/client_info.dart';
 import 'services/api_service.dart';
 import 'services/backend_service.dart';
@@ -37,7 +38,7 @@ class AuthorizationGatewayApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF4F46E5)),
         useMaterial3: true,
       ),
-      home: const AppNavigator(),
+      home: const DemoTapIndicatorOverlay(child: AppNavigator()),
     );
   }
 }
