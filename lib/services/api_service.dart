@@ -25,12 +25,19 @@ class ApiService {
     'Content-Type': 'application/json',
   };
 
+  /// HTTP通信に使用するクライアント。
+  ///
+  /// 通常は実際の [http.Client] を使うが、テストやデモ（integration_test）では
+  /// `package:http/testing.dart` の `MockClient` を差し替えることでAPI応答を
+  /// モックできる。差し替えは本番の呼び出し方には影響しない。
+  static http.Client client = http.Client();
+
   /// クライアント情報をAPIから取得する。
   static Future<ClientInfo> fetchClientInfo(
     String slug,
     String identifier,
   ) async {
-    final res = await http.get(
+    final res = await client.get(
       Uri.parse(AppConfig.clientInfoUrl(slug, identifier)),
       headers: _headers,
     );
@@ -39,13 +46,14 @@ class ApiService {
     return ClientInfo(
       name: json['name'] as String,
       identifier: json['identifier'] as String,
+      email: json['email'] as String? ?? '',
       status: _parseStatus(json['status'] as int),
     );
   }
 
   /// 利用開始APIを呼び出し、アクセストークンを返す。
   static Future<String> activateClient(String slug, String identifier) async {
-    final res = await http.patch(
+    final res = await client.patch(
       Uri.parse(AppConfig.clientStartUrl(slug, identifier)),
       headers: _headers,
     );
@@ -56,7 +64,7 @@ class ApiService {
 
   /// 利用停止APIを呼び出す。
   static Future<void> stopClient(String slug, String identifier) async {
-    final res = await http.patch(
+    final res = await client.patch(
       Uri.parse(AppConfig.clientStopUrl(slug, identifier)),
       headers: _headers,
     );
@@ -65,7 +73,7 @@ class ApiService {
 
   /// 利用再開APIを呼び出す。
   static Future<void> resumeClient(String slug, String identifier) async {
-    final res = await http.patch(
+    final res = await client.patch(
       Uri.parse(AppConfig.clientStartUrl(slug, identifier)),
       headers: _headers,
     );

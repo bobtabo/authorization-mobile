@@ -25,6 +25,37 @@
 
 ---
 
+## :clipboard: 目次
+
+- [デモ](#デモ)
+- [画面構成](#画面構成)
+- [技術スタック](#技術スタック)
+- [開発環境構築](#開発環境構築)
+  - [前提](#前提)
+  - [セットアップ](#セットアップ)
+  - [起動](#起動)
+- [デモ録画・GIF 変換](#デモ録画gif-変換)
+  - [自動操作版（推奨）](#自動操作版推奨)
+  - [手動操作版](#手動操作版)
+- [環境設定](#環境設定)
+  - [API パス形式](#api-パス形式)
+  - [API_ID の自動更新](#api_id-の自動更新)
+- [ディープリンク](#ディープリンク)
+  - [QRコードのURL形式](#qrコードのurl形式)
+  - [ディープリンクのテスト](#ディープリンクのテスト)
+- [セッション復元](#セッション復元)
+- [関連リポジトリ](#関連リポジトリ)
+
+---
+
+## :clapper: デモ
+
+| iOS | Android |
+|:---:|:---:|
+| ![iOS デモ](docs/ios/demo.gif) | ![Android デモ](docs/android/demo.gif) |
+
+---
+
 ## :iphone: 画面構成
 
 | 画面 | 説明 |
@@ -59,6 +90,7 @@
 - Flutter 3.41.9 以上
 - Xcode（iOS ビルド）
 - Android Studio / Android SDK（Android ビルド）
+- `ffmpeg`（デモ録画の GIF 変換に使用。macOS では `brew install ffmpeg`）
 
 > [!NOTE]
 > iOS Simulator / Android エミュレーターのセットアップは各自で行ってください。
@@ -71,10 +103,15 @@ cd authorization-mobile
 
 # 環境設定ファイルを作成
 cp .env.example .env
-# .env を編集して接続先バックエンドのURLを設定
-
 flutter pub get
+
+# 認可サーバーで tflocal apply 完了後に実行して API_ID を自動設定
+bash scripts/update-env.sh
 ```
+
+> [!IMPORTANT]
+> `scripts/update-env.sh` は認可サーバー（`../authorization`）で `tflocal apply` 実行済みであることが前提です。
+> 認可サーバーのセットアップが未完了の場合は、先に [bobtabo/authorization](https://github.com/bobtabo/authorization) の手順を済ませてください。
 
 ### 起動
 
@@ -101,20 +138,116 @@ flutter run -d iPhone          # iOS Simulator
 
 ---
 
+## :movie_camera: デモ録画・GIF 変換
+
+デモ操作の録画から GIF 変換までを一発で行うスクリプトを用意しています。
+用途に応じて **自動操作版** と **手動操作版** の 2 種類があります。
+
+出力は iOS / Android で別ディレクトリに分かれます。
+
+| 出力 | 説明 |
+|:---|:---|
+| `docs/ios/demo.mp4` | iOS 録画ファイル（中間・`.gitignore` 対象） |
+| `docs/ios/demo.gif` | iOS 変換後 GIF（README / Notion 掲載用） |
+| `docs/android/demo.mp4` | Android 録画ファイル（中間・`.gitignore` 対象） |
+| `docs/android/demo.gif` | Android 変換後 GIF（README / Notion 掲載用） |
+
+実際のデモ映像は先頭の [デモ](#デモ) セクションに掲載しています。
+
+### 自動操作版（推奨）
+
+`integration_test` でデモ操作（QRスキャン → クライアント情報確認 → 利用開始 →
+アクセストークン表示 → ホーム画面でステータス確認）を**自動再生**しながら録画し、
+GIF まで変換します。人手での操作は不要です。
+
+```bash
+# iOS Simulator（事前に open -a Simulator で起動しておく）
+bash scripts/record-demo-auto.sh ios
+
+# Android エミュレーター（事前にエミュレーターを起動しておく）
+bash scripts/record-demo-auto.sh android
+
+# デバイスIDを明示指定することも可能（省略時は起動中の端末を自動検出）
+bash scripts/record-demo-auto.sh android emulator-5554
+```
+
+> [!IMPORTANT]
+> このデモは**実サーバー（LocalStack / ngrok / 実バックエンド）に一切接続しません**。
+> API 応答（クライアント情報・アクセストークン）はすべて `MockClient` でモックするため、
+> 認可サーバーのセットアップや `.env` の設定なしで実行できます。
+
+> [!NOTE]
+> エミュレーター/シミュレーターには実カメラがないため、`scripts/record-demo-auto.sh` は
+> `--dart-define=DEMO_SCAN_PREVIEW=true` を付与し、スキャナー画面に実機カメラの代わりに
+> サンプル QR コード（`assets/demo_qr.png`）をプレビュー表示します。これにより録画に
+> 実在の部屋（エミュレーターの仮想シーン）が映り込まず、「QR コードを読み取っている」
+> 様子を再現できます。このフラグは録画時のみ有効で、本番ビルド（既定 `false`）の
+> カメラ動作には一切影響しません。
+
+デモシナリオの実体は [`integration_test/demo_scenario_test.dart`](integration_test/demo_scenario_test.dart) です。
+録画なしでシナリオだけを実行・確認することもできます。
+
+```bash
+flutter test integration_test/demo_scenario_test.dart -d <device-id>
+```
+
+### 手動操作版
+
+録画を開始し、自分でアプリを操作して **Enter キー**で停止すると GIF に変換されます。
+自動シナリオに含まれない操作（利用停止など）を録画したい場合に使います。
+
+```bash
+# iOS Simulator を録画（事前に open -a Simulator で起動しておく）
+bash scripts/record-demo.sh ios
+
+# Android エミュレーターを録画（事前にエミュレーターを起動しておく）
+bash scripts/record-demo.sh android
+```
+
+> [!NOTE]
+> どちらも `ffmpeg` が必要です（macOS では `brew install ffmpeg`）。
+> GIF のサイズが大きい場合は `FPS=8 SCALE_WIDTH=320 bash scripts/record-demo-auto.sh ios` のように調整できます。
+
+---
+
 ## :gear: 環境設定
 
-`.env` でバックエンドの接続先を管理します。<br>
-※変更しなくても利用可能です。
+`.env` でバックエンドの接続先を管理します。
 
 ```env
-BASE_URL=https://ample-precise-knee.ngrok-free.dev
+BASE_URL=https://ample-precise-knee.ngrok-free.app
+API_ID={api-id}
 ```
 
 | 変数 | 説明 |
 |:---|:---|
-| `BASE_URL` | APIゲートウェイのベースURL |
+| `BASE_URL` | ngrok 固定ドメイン（認可サーバーの API Gateway へのプロキシ）。**各自の ngrok ドメインに変更してください。** |
+| `API_ID` | LocalStack API Gateway の REST API ID（`tflocal apply` で生成される） |
 
-アプリ内のバックエンド切替プルダウンで、接続先スラッグ（`/function/{slug}/api`）を変更できます。
+> [!NOTE]
+> `STAGE` は `local` 固定のためアプリ内にハードコードされています。`.env` での設定は不要です。
+
+### API パス形式
+
+LocalStack API Gateway のパス形式は以下のとおりです。
+
+```
+/restapis/{api-id}/local/_user_request_/function/{slug}/api
+```
+
+アプリ内のバックエンド切替プルダウンで、接続先スラッグ（`{slug}`）を変更できます。
+
+### API_ID の自動更新
+
+認可サーバー側で `tflocal apply` を実行した後、以下のスクリプトで `.env` の `API_ID` を自動更新できます。
+
+```bash
+bash scripts/update-env.sh
+```
+
+> [!NOTE]
+> スクリプトは認可サーバーの Terraform ディレクトリ（`../authorization/terraform/local`）から `tflocal output -raw api_gateway_id` で取得します。
+> ディレクトリ配置が異なる場合は環境変数 `AUTH_TERRAFORM_DIR` で上書きしてください。
 
 ---
 
