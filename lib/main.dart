@@ -3,21 +3,23 @@
 // Copyright (c) 2026 BobTabo. All Rights Reserved.
 
 import 'dart:async';
+
+import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:app_links/app_links.dart';
+
 import 'config/app_config.dart';
 import 'config/backends.dart';
 import 'demo/tap_indicator.dart';
 import 'models/client_info.dart';
+import 'screens/activation_confirm_screen.dart';
+import 'screens/home_screen.dart';
+import 'screens/qr_scanner_screen.dart';
+import 'screens/splash_screen.dart';
+import 'screens/token_display_screen.dart';
 import 'services/api_service.dart';
 import 'services/backend_service.dart';
 import 'services/client_session_service.dart';
-import 'screens/splash_screen.dart';
-import 'screens/qr_scanner_screen.dart';
-import 'screens/activation_confirm_screen.dart';
-import 'screens/token_display_screen.dart';
-import 'screens/home_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

@@ -1,6 +1,6 @@
+import 'package:authorization_mobile/config/app_config.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:authorization_mobile/config/app_config.dart';
 
 void main() {
   group('AppConfig.apiBase with API_ID set', () {
