@@ -20,16 +20,15 @@
 
 import 'dart:convert';
 
+import 'package:authorization_mobile/demo/tap_indicator.dart';
+import 'package:authorization_mobile/main.dart';
+import 'package:authorization_mobile/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:integration_test/integration_test.dart';
-
-import 'package:authorization_mobile/demo/tap_indicator.dart';
-import 'package:authorization_mobile/main.dart';
-import 'package:authorization_mobile/services/api_service.dart';
 
 /// デモ用モックデータ（バックエンド側デモの表示名・メールアドレスと揃える）。
 const _clientName = '株式会社デモテスト';
