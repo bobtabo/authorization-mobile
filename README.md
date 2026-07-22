@@ -44,6 +44,9 @@
   - [QRコードのURL形式](#qrコードのurl形式)
   - [ディープリンクのテスト](#ディープリンクのテスト)
 - [セッション復元](#セッション復元)
+- [Claude Code Hooks（自動化ルール）](#claude-code-hooks自動化ルール)
+  - [自動化されている内容](#自動化されている内容)
+  - [前提ツール](#前提ツール)
 - [関連リポジトリ](#関連リポジトリ)
 
 ---
@@ -287,6 +290,36 @@ xcrun simctl openurl booted "authgateway://clients/{identifier}/info"
 |:---|:---|
 | 利用中 / 停止中 | ホーム画面 |
 | 未利用 / セッションなし | スプラッシュ画面 |
+
+---
+
+## :robot: Claude Code Hooks（自動化ルール）
+
+[Claude Code](https://docs.claude.com/en/docs/claude-code/hooks) の Hooks 機能を使い、このリポジトリでの定型作業を自動化しています。設定はプロジェクト共有の [`.claude/settings.json`](.claude/settings.json) にあり、リポジトリに含まれます。個人設定 `.claude/settings.local.json`（Bash/MCP の許可リスト等）は `.gitignore` で除外されたままです。
+
+Hooks はローカルでの対話的な Claude Code 利用時のみ発火します。CI（`.github/workflows/ci.yml`）とは無関係です。
+
+### 自動化されている内容
+
+| イベント | 対象 | 挙動 |
+|:---|:---|:---|
+| PostToolUse | `Edit`/`Write`（`.dart`） | 保存直後に `dart format` で自動整形 |
+| PreToolUse | `Edit`/`Write`（`*.g.dart`/`*.freezed.dart`） | 生成ファイルへの直接編集を拒否 |
+| PreToolUse | `Bash` | `git push --force` / `reset --hard` / `branch -D` / `clean -f` 等の破壊的操作を拒否 |
+| PreToolUse | `Bash`（`git commit`） | コミット前に機密情報をチェック（`gitleaks` 優先、未導入時は簡易 grep フォールバック） |
+| Stop | ― | 実装完了時に `dart fix --apply` → `dart format .` でインポート最適化を一括実行 |
+| Stop | ― | 完了のデスクトップ通知（macOS の `osascript` のみ。無い環境では何もしない） |
+
+インポート最適化を編集の都度ではなく Stop（実装完了時）にまとめて実行するのは、`dart fix --apply` がプロジェクト全体を解析するため、編集ごとに走らせると開発体験を損なうためです。
+
+### 前提ツール
+
+- **`jq`**（必須）: フックが標準入力の JSON を解析するために使用します。
+  - macOS: `brew install jq`
+  - Debian/Ubuntu: `sudo apt-get install -y jq`
+- **`gitleaks`**（任意・推奨）: コミット前の機密情報チェックに使用します。未導入の場合は簡易 grep によるフォールバックが働きます。
+  - macOS: `brew install gitleaks`
+  - その他: [公式リリース](https://github.com/gitleaks/gitleaks/releases)を参照
 
 ---
 

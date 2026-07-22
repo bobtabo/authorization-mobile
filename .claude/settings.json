@@ -1,0 +1,62 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "file=$(jq -r '.tool_input.file_path' 2>/dev/null); case \"$file\" in *.dart) dart format \"$file\" ;; esac; exit 0"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "file=$(jq -r '.tool_input.file_path' 2>/dev/null); case \"$file\" in *.g.dart|*.freezed.dart) echo '生成ファイルです。元のソースを編集して build_runner を再実行してください。' >&2; exit 2 ;; esac; exit 0"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cmd=$(jq -r '.tool_input.command' 2>/dev/null); if echo \"$cmd\" | grep -qE '(git[[:space:]]+push[[:space:]]+.*(--force|-f\\b))|(git[[:space:]]+reset[[:space:]]+--hard)|(git[[:space:]]+branch[[:space:]]+-D)|(git[[:space:]]+clean[[:space:]]+-f)'; then echo '⚠️ 破壊的なgit操作です。意図的な実行か確認してください。' >&2; exit 2; fi; exit 0"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cmd=$(jq -r '.tool_input.command' 2>/dev/null); if echo \"$cmd\" | grep -qE '(^|;|&&|\\|)[[:space:]]*git[[:space:]]+commit\\b'; then if command -v gitleaks >/dev/null 2>&1; then gitleaks protect --staged --no-banner || { echo '⚠️ gitleaksがシークレットの疑いを検出しました。' >&2; exit 2; }; elif git diff --cached | grep -Eiq '(api[_-]?key|secret|password|BEGIN (RSA|EC) PRIVATE KEY)'; then echo '⚠️ ステージ済み差分に機密情報らしき文字列が含まれています（gitleaks未インストールのため簡易チェックのみ）。' >&2; exit 2; fi; fi; exit 0"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && dart fix --apply >/dev/null 2>&1; dart format . >/dev/null 2>&1; exit 0"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if command -v osascript >/dev/null 2>&1; then osascript -e 'display notification \"Claude Codeの作業が完了しました\" with title \"authorization-mobile\"' >/dev/null 2>&1; fi; exit 0"
+          }
+        ]
+      }
+    ]
+  }
+}

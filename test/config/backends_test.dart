@@ -1,5 +1,5 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'package:authorization_mobile/config/backends.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('kBackends', () {
