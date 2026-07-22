@@ -35,7 +35,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cmd=$(jq -r '.tool_input.command' 2>/dev/null); if echo \"$cmd\" | grep -qE '^git commit'; then if command -v gitleaks >/dev/null 2>&1; then gitleaks protect --staged --no-banner || { echo '⚠️ gitleaksがシークレットの疑いを検出しました。' >&2; exit 2; }; elif git diff --cached | grep -Eiq '(api[_-]?key|secret|password|BEGIN (RSA|EC) PRIVATE KEY)'; then echo '⚠️ ステージ済み差分に機密情報らしき文字列が含まれています（gitleaks未インストールのため簡易チェックのみ）。' >&2; exit 2; fi; fi; exit 0"
+            "command": "cmd=$(jq -r '.tool_input.command' 2>/dev/null); if echo \"$cmd\" | grep -qE '(^|;|&&|\\|)[[:space:]]*git[[:space:]]+commit\\b'; then if command -v gitleaks >/dev/null 2>&1; then gitleaks protect --staged --no-banner || { echo '⚠️ gitleaksがシークレットの疑いを検出しました。' >&2; exit 2; }; elif git diff --cached | grep -Eiq '(api[_-]?key|secret|password|BEGIN (RSA|EC) PRIVATE KEY)'; then echo '⚠️ ステージ済み差分に機密情報らしき文字列が含まれています（gitleaks未インストールのため簡易チェックのみ）。' >&2; exit 2; fi; fi; exit 0"
           }
         ]
       }
