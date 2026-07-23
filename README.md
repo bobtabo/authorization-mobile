@@ -311,5 +311,5 @@ xcrun simctl openurl booted "authgateway://clients/{identifier}/info"
 | リポジトリ | 説明 |
 |:---|:---|
 | [bobtabo/authorization](https://github.com/bobtabo/authorization) | 認可サーバー（OAuth2/OIDC）・管理画面 |
-| [bobtabo/authorization-showcase](https://github.com/bobtabo/authorization-showcase) | 認可サーバー API（JWT発行／検証）の多言語・多フレームワーク実装ショーケース |
 | bobtabo/authorization-mobile | 本リポジトリ：クライアント操作用モバイルアプリ |
+| [bobtabo/authorization-showcase](https://github.com/bobtabo/authorization-showcase) | 認可サーバー API（JWT発行／検証）の多言語・多フレームワーク実装ショーケース |
