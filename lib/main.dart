@@ -7,6 +7,7 @@ import 'dart:async';
 import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'config/app_config.dart';
 import 'config/backends.dart';
@@ -24,7 +25,7 @@ import 'services/client_session_service.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: '.env');
-  runApp(const AuthorizationGatewayApp());
+  runApp(const ProviderScope(child: AuthorizationGatewayApp()));
 }
 
 /// アプリのルートウィジェット。テーマと [AppNavigator] を設定する。
