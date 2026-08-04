@@ -25,7 +25,14 @@ void main() {
       expect(Ok<int>(1 + 1), Ok<int>(2));
       expect(Ok<int>(1 + 1).hashCode, Ok<int>(2).hashCode);
       expect(Ok<int>(2), isNot(Ok<int>(3)));
+    });
+
+    test('compares by value symmetrically across differing type arguments', () {
+      // Ok<int> と Ok<num> はDartのジェネリクスの実行時covariance
+      // （Ok<int> is Ok<num> は真だが逆は偽）の影響を受けないことを
+      // 両方向で検証する。片方向だけのテストだと非対称バグを見逃す。
       expect(Ok<num>(2), isNot(Ok<int>(2)));
+      expect(Ok<int>(2), isNot(Ok<num>(2)));
     });
   });
 
@@ -62,6 +69,12 @@ void main() {
         Err<int>(ApiFailure(404, 'not found')),
         isNot(Err<int>(NetworkException())),
       );
+    });
+
+    test('compares by value symmetrically across differing type arguments', () {
+      const error = NetworkException();
+      expect(Err<num>(error), isNot(Err<int>(error)));
+      expect(Err<int>(error), isNot(Err<num>(error)));
     });
   });
 
