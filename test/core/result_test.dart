@@ -20,6 +20,13 @@ void main() {
 
       expect(matched, 42);
     });
+
+    test('compares by value', () {
+      expect(Ok<int>(1 + 1), Ok<int>(2));
+      expect(Ok<int>(1 + 1).hashCode, Ok<int>(2).hashCode);
+      expect(Ok<int>(2), isNot(Ok<int>(3)));
+      expect(Ok<num>(2), isNot(Ok<int>(2)));
+    });
   });
 
   group('Err', () {
@@ -41,6 +48,21 @@ void main() {
       expect(matched, isA<ApiFailure>());
       expect((matched as ApiFailure).statusCode, 404);
     });
+
+    test('compares by value', () {
+      expect(
+        Err<int>(ApiFailure(400 + 4, 'not found')),
+        Err<int>(ApiFailure(404, 'not found')),
+      );
+      expect(
+        Err<int>(ApiFailure(400 + 4, 'not found')).hashCode,
+        Err<int>(ApiFailure(404, 'not found')).hashCode,
+      );
+      expect(
+        Err<int>(ApiFailure(404, 'not found')),
+        isNot(Err<int>(NetworkException())),
+      );
+    });
   });
 
   group('AppException', () {
@@ -57,6 +79,18 @@ void main() {
 
     test('UnknownException has a default message', () {
       expect(const UnknownException().message, '不明なエラーが発生しました');
+    });
+
+    test('compares by value', () {
+      expect(ApiFailure(400 + 4, 'not found'), ApiFailure(404, 'not found'));
+      expect(
+        ApiFailure(400 + 4, 'not found').hashCode,
+        ApiFailure(404, 'not found').hashCode,
+      );
+      expect(ApiFailure(404, 'not found'), isNot(ApiFailure(500, 'not found')));
+      expect(NetworkException('${'通信'}エラー'), NetworkException('通信エラー'));
+      expect(UnknownException('${'不明'}なエラー'), UnknownException('不明なエラー'));
+      expect(NetworkException('同一文言'), isNot(UnknownException('同一文言')));
     });
   });
 }

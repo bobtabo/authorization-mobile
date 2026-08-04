@@ -18,6 +18,12 @@ final class Ok<T> extends Result<T> {
 
   /// 成功時の値。
   final T value;
+
+  @override
+  bool operator ==(Object other) => other is Ok<T> && other.value == value;
+
+  @override
+  int get hashCode => Object.hash(Ok<T>, value);
 }
 
 /// 失敗時の結果。
@@ -26,4 +32,10 @@ final class Err<T> extends Result<T> {
 
   /// 失敗の内容。
   final AppException error;
+
+  @override
+  bool operator ==(Object other) => other is Err<T> && other.error == error;
+
+  @override
+  int get hashCode => Object.hash(Err<T>, error);
 }

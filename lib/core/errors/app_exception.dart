@@ -13,6 +13,13 @@ sealed class AppException {
 /// ネットワーク通信自体が失敗した場合の例外。
 final class NetworkException extends AppException {
   const NetworkException([super.message = '通信エラーが発生しました']);
+
+  @override
+  bool operator ==(Object other) =>
+      other is NetworkException && other.message == message;
+
+  @override
+  int get hashCode => Object.hash(NetworkException, message);
 }
 
 /// APIがエラーレスポンス（200以外）を返した場合の例外。
@@ -21,9 +28,25 @@ final class ApiFailure extends AppException {
 
   /// HTTPステータスコード。
   final int statusCode;
+
+  @override
+  bool operator ==(Object other) =>
+      other is ApiFailure &&
+      other.statusCode == statusCode &&
+      other.message == message;
+
+  @override
+  int get hashCode => Object.hash(ApiFailure, statusCode, message);
 }
 
 /// 上記以外の予期しない例外。
 final class UnknownException extends AppException {
   const UnknownException([super.message = '不明なエラーが発生しました']);
+
+  @override
+  bool operator ==(Object other) =>
+      other is UnknownException && other.message == message;
+
+  @override
+  int get hashCode => Object.hash(UnknownException, message);
 }
