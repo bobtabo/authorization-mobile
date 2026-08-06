@@ -2,16 +2,7 @@
 //
 // Copyright (c) 2026 BobTabo. All Rights Reserved.
 
-/// バックエンド選択肢を表すクラス。
-class BackendOption {
-  /// 表示名。
-  final String name;
-
-  /// APIゲートウェイのパスセグメントに使用するスラッグ。
-  final String slug;
-
-  const BackendOption({required this.name, required this.slug});
-}
+import '../../domain/entities/backend_option.dart';
 
 /// 利用可能なバックエンドの一覧。
 const List<BackendOption> kBackends = [

@@ -1,4 +1,4 @@
-import 'package:authorization_mobile/config/backends.dart';
+import 'package:authorization_mobile/core/config/backends.dart';
 import 'package:authorization_mobile/services/backend_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';

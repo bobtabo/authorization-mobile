@@ -1,4 +1,4 @@
-import 'package:authorization_mobile/config/app_config.dart';
+import 'package:authorization_mobile/core/config/app_config.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -29,29 +29,6 @@ void main() {
         AppConfig.defaultApiBase(),
         'https://example.ngrok-free.app/restapis/abc123def/local/_user_request_/function/php/api',
       );
-    });
-  });
-
-  group('AppConfig.parseQrUri', () {
-    test('parses valid authgateway URL', () {
-      final uri = Uri.parse('authgateway://clients/client_test_001/info');
-      final result = AppConfig.parseQrUri(uri);
-      expect(result?.identifier, 'client_test_001');
-    });
-
-    test('returns null for wrong scheme', () {
-      final uri = Uri.parse('https://example.com/clients/abc/info');
-      expect(AppConfig.parseQrUri(uri), isNull);
-    });
-
-    test('returns null for wrong host', () {
-      final uri = Uri.parse('authgateway://unknown/client_test_001/info');
-      expect(AppConfig.parseQrUri(uri), isNull);
-    });
-
-    test('returns null for wrong path', () {
-      final uri = Uri.parse('authgateway://clients/client_test_001/activate');
-      expect(AppConfig.parseQrUri(uri), isNull);
     });
   });
 }

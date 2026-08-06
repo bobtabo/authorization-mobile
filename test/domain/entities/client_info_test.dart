@@ -1,4 +1,4 @@
-import 'package:authorization_mobile/models/client_info.dart';
+import 'package:authorization_mobile/domain/entities/client_info.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

@@ -4,8 +4,8 @@
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../config/app_config.dart';
-import '../models/client_info.dart';
+import '../core/config/app_config.dart';
+import '../domain/entities/client_info.dart';
 
 /// APIレスポンスが200以外の場合にスローされる例外。
 class ApiException implements Exception {
