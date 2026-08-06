@@ -2,15 +2,18 @@
 //
 // Copyright (c) 2026 BobTabo. All Rights Reserved.
 
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// クライアントセッション（スラッグと識別子）を SharedPreferences に永続化するサービスクラス。
-class ClientSessionService {
+part 'client_session_local_data_source.g.dart';
+
+/// クライアントセッション（スラッグと識別子）を SharedPreferences に永続化するDataSource。
+class ClientSessionLocalDataSource {
   static const _keyIdentifier = 'client_identifier';
   static const _keySlug = 'client_slug';
 
   /// 保存済みのセッションを読み込む。未保存の場合は null を返す。
-  static Future<({String slug, String identifier})?> load() async {
+  Future<({String slug, String identifier})?> load() async {
     final prefs = await SharedPreferences.getInstance();
     final identifier = prefs.getString(_keyIdentifier);
     final slug = prefs.getString(_keySlug);
@@ -19,16 +22,20 @@ class ClientSessionService {
   }
 
   /// スラッグと識別子を保存する。
-  static Future<void> save(String slug, String identifier) async {
+  Future<void> save(String slug, String identifier) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_keySlug, slug);
     await prefs.setString(_keyIdentifier, identifier);
   }
 
   /// 保存済みセッションを削除する。
-  static Future<void> clear() async {
+  Future<void> clear() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_keyIdentifier);
     await prefs.remove(_keySlug);
   }
 }
+
+@riverpod
+ClientSessionLocalDataSource clientSessionLocalDataSource(Ref ref) =>
+    ClientSessionLocalDataSource();

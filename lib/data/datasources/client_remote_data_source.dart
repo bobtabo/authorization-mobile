@@ -4,8 +4,12 @@
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../core/config/app_config.dart';
-import '../domain/entities/client_info.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import '../../core/config/app_config.dart';
+import '../../domain/entities/client_info.dart';
+
+part 'client_remote_data_source.g.dart';
 
 /// APIレスポンスが200以外の場合にスローされる例外。
 class ApiException implements Exception {
@@ -18,26 +22,26 @@ class ApiException implements Exception {
   const ApiException(this.statusCode, this.message);
 }
 
-/// バックエンドAPIとの通信を担うサービスクラス。
-class ApiService {
+/// バックエンドAPIとの通信を担うDataSource。
+class ClientRemoteDataSource {
+  ClientRemoteDataSource({http.Client? client})
+    : _client = client ?? http.Client();
+
+  /// HTTP通信に使用するクライアント。
+  ///
+  /// 通常は実際の [http.Client] を使うが、テストやデモ（integration_test）では
+  /// `package:http/testing.dart` の `MockClient` をコンストラクタで渡すことで
+  /// API応答をモックできる。差し替えは本番の呼び出し方には影響しない。
+  final http.Client _client;
+
   static const _headers = {
     'Accept': 'application/json',
     'Content-Type': 'application/json',
   };
 
-  /// HTTP通信に使用するクライアント。
-  ///
-  /// 通常は実際の [http.Client] を使うが、テストやデモ（integration_test）では
-  /// `package:http/testing.dart` の `MockClient` を差し替えることでAPI応答を
-  /// モックできる。差し替えは本番の呼び出し方には影響しない。
-  static http.Client client = http.Client();
-
   /// クライアント情報をAPIから取得する。
-  static Future<ClientInfo> fetchClientInfo(
-    String slug,
-    String identifier,
-  ) async {
-    final res = await client.get(
+  Future<ClientInfo> fetchClientInfo(String slug, String identifier) async {
+    final res = await _client.get(
       Uri.parse(AppConfig.clientInfoUrl(slug, identifier)),
       headers: _headers,
     );
@@ -52,8 +56,8 @@ class ApiService {
   }
 
   /// 利用開始APIを呼び出し、アクセストークンを返す。
-  static Future<String> activateClient(String slug, String identifier) async {
-    final res = await client.patch(
+  Future<String> activateClient(String slug, String identifier) async {
+    final res = await _client.patch(
       Uri.parse(AppConfig.clientStartUrl(slug, identifier)),
       headers: _headers,
     );
@@ -63,8 +67,8 @@ class ApiService {
   }
 
   /// 利用停止APIを呼び出す。
-  static Future<void> stopClient(String slug, String identifier) async {
-    final res = await client.patch(
+  Future<void> stopClient(String slug, String identifier) async {
+    final res = await _client.patch(
       Uri.parse(AppConfig.clientStopUrl(slug, identifier)),
       headers: _headers,
     );
@@ -72,22 +76,22 @@ class ApiService {
   }
 
   /// 利用再開APIを呼び出す。
-  static Future<void> resumeClient(String slug, String identifier) async {
-    final res = await client.patch(
+  Future<void> resumeClient(String slug, String identifier) async {
+    final res = await _client.patch(
       Uri.parse(AppConfig.clientStartUrl(slug, identifier)),
       headers: _headers,
     );
     _checkStatus(res);
   }
 
-  static void _checkStatus(http.Response res) {
+  void _checkStatus(http.Response res) {
     if (res.statusCode != 200) {
       throw ApiException(res.statusCode, '${res.request?.url} ${res.body}');
     }
   }
 
   // ClientStatus: Pending=0, Inactive=1, Active=2, Suspended=3, Closed=4
-  static ClientStatus _parseStatus(int value) {
+  ClientStatus _parseStatus(int value) {
     return switch (value) {
       2 => ClientStatus.active,
       3 => ClientStatus.suspended,
@@ -95,3 +99,7 @@ class ApiService {
     };
   }
 }
+
+@riverpod
+ClientRemoteDataSource clientRemoteDataSource(Ref ref) =>
+    ClientRemoteDataSource();
