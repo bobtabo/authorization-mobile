@@ -3,7 +3,8 @@
 // Copyright (c) 2026 BobTabo. All Rights Reserved.
 
 import 'package:shared_preferences/shared_preferences.dart';
-import '../config/backends.dart';
+import '../core/config/backends.dart';
+import '../domain/entities/backend_option.dart';
 
 /// 選択中バックエンドを SharedPreferences に永続化するサービスクラス。
 class BackendService {

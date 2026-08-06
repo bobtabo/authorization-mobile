@@ -9,10 +9,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'config/app_config.dart';
-import 'config/backends.dart';
+import 'core/config/backends.dart';
 import 'demo/tap_indicator.dart';
-import 'models/client_info.dart';
+import 'domain/entities/backend_option.dart';
+import 'domain/entities/client_info.dart';
+import 'domain/usecases/parse_qr_usecase.dart';
 import 'screens/activation_confirm_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/qr_scanner_screen.dart';
@@ -129,7 +130,7 @@ class _AppNavigatorState extends State<AppNavigator> {
   }
 
   Future<void> _handleDeepLink(Uri uri) async {
-    final parsed = AppConfig.parseQrUri(uri);
+    final parsed = const ParseQrUseCase()(uri);
     if (parsed == null) return;
 
     _setLoading(true);

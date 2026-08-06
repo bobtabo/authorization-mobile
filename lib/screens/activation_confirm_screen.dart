@@ -4,7 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../models/client_info.dart';
+import '../domain/entities/client_info.dart';
 
 /// QRスキャン後にクライアント情報を確認して利用開始するための画面。
 class ActivationConfirmScreen extends StatelessWidget {
