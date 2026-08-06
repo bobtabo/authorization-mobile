@@ -5,6 +5,10 @@
 .packages
 build/
 
+# コード生成物（build_runner: riverpod_generator / freezed）
+*.g.dart
+*.freezed.dart
+
 # Flutter メタデータ（flutter create が生成するが不要）
 .metadata
 
