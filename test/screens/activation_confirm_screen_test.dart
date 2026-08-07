@@ -1,5 +1,5 @@
 import 'package:authorization_mobile/domain/entities/client_info.dart';
-import 'package:authorization_mobile/screens/activation_confirm_screen.dart';
+import 'package:authorization_mobile/ui/activation_confirm/view/activation_confirm_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

@@ -1,4 +1,4 @@
-import 'package:authorization_mobile/screens/token_display_screen.dart';
+import 'package:authorization_mobile/ui/token_display/view/token_display_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

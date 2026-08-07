@@ -5,11 +5,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../screens/activation_confirm_screen.dart';
-import '../../screens/home_screen.dart';
-import '../../screens/qr_scanner_screen.dart';
-import '../../screens/splash_screen.dart';
-import '../../screens/token_display_screen.dart';
+import '../activation_confirm/view/activation_confirm_screen.dart';
+import '../home/view/home_screen.dart';
+import '../scanner/view/qr_scanner_screen.dart';
+import '../splash/view/splash_screen.dart';
+import '../token_display/view/token_display_screen.dart';
 import 'app_navigator_state.dart';
 import 'app_navigator_view_model.dart';
 
