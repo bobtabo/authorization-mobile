@@ -6,8 +6,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import '../core/config/backends.dart';
-import '../domain/entities/backend_option.dart';
+import '../../../core/config/backends.dart';
+import '../../../domain/entities/backend_option.dart';
 
 /// アプリ起動時に表示されるスプラッシュ画面。QRスキャン開始とバックエンド選択を提供する。
 class SplashScreen extends StatefulWidget {

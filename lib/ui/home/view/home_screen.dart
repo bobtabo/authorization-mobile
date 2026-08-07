@@ -5,9 +5,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import '../core/config/backends.dart';
-import '../domain/entities/backend_option.dart';
-import '../domain/entities/client_info.dart';
+import '../../../core/config/backends.dart';
+import '../../../domain/entities/backend_option.dart';
+import '../../../domain/entities/client_info.dart';
 
 class HomeScreen extends StatefulWidget {
   final ClientInfo clientInfo;

@@ -3,12 +3,13 @@
 // Copyright (c) 2026 BobTabo. All Rights Reserved.
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../data/datasources/platform_actions_data_source.dart';
 
 /// 利用開始後にアクセストークンを一度だけ表示する画面。
-class TokenDisplayScreen extends StatefulWidget {
+class TokenDisplayScreen extends ConsumerStatefulWidget {
   /// 表示するアクセストークン。
   final String token;
 
@@ -26,15 +27,17 @@ class TokenDisplayScreen extends StatefulWidget {
   });
 
   @override
-  State<TokenDisplayScreen> createState() => _TokenDisplayScreenState();
+  ConsumerState<TokenDisplayScreen> createState() => _TokenDisplayScreenState();
 }
 
-class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
+class _TokenDisplayScreenState extends ConsumerState<TokenDisplayScreen> {
   bool _copied = false;
   bool _showConfirmDialog = false;
 
   void _handleCopy() async {
-    await Clipboard.setData(ClipboardData(text: widget.token));
+    await ref
+        .read(platformActionsDataSourceProvider)
+        .copyToClipboard(widget.token);
     setState(() => _copied = true);
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) setState(() => _copied = false);
@@ -43,18 +46,16 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
 
   Future<void> _handleShare() async {
     final size = MediaQuery.of(context).size;
-    await SharePlus.instance.share(
-      ShareParams(
-        text: widget.token,
-        title: 'アクセストークンをシェア',
-        subject: 'アクセストークンをシェア',
-        sharePositionOrigin: Rect.fromCenter(
-          center: Offset(size.width / 2, size.height / 2),
-          width: 1,
-          height: 1,
-        ),
-      ),
-    );
+    await ref
+        .read(platformActionsDataSourceProvider)
+        .share(
+          widget.token,
+          sharePositionOrigin: Rect.fromCenter(
+            center: Offset(size.width / 2, size.height / 2),
+            width: 1,
+            height: 1,
+          ),
+        );
   }
 
   void _handleClose() {
