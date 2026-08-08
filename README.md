@@ -93,6 +93,10 @@ MVVM + Clean Architecture を採用し、以下の層構成になっています
 `View → ViewModel → UseCase → Repository → DataSource` の一方向（UDF: 単一方向
 データフロー）で流れます。
 
+構成図（PlantUML）: [`docs/architecture/mobile.puml`](docs/architecture/mobile.puml)
+（[bobtabo/authorization](https://github.com/bobtabo/authorization) の
+`docs/architecture/backend.puml` と同じ配色・ステレオタイプ規約を踏襲）
+
 ```
 lib/
 ├── ui/                  # Presentation層（View + ViewModel + State）

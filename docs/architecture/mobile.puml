@@ -1,0 +1,174 @@
+@startuml
+' authorization-mobile の MVVM + Clean Architecture 構成図
+' bobtabo/authorization の docs/architecture/backend.puml のモバイル版（配色・ステレオタイプ規約を踏襲）
+skinparam shadowing true
+skinparam roundcorner 12
+skinparam Padding 10
+skinparam BoxPadding 8
+skinparam nodesep 36
+skinparam ranksep 48
+top to bottom direction
+
+skinparam defaultFontColor #1E293B
+skinparam ArrowColor #475569
+skinparam ArrowThickness 1.3
+
+skinparam package {
+    BorderColor #64748B
+    FontColor #0F172A
+    FontStyle bold
+    FontSize 13
+}
+
+skinparam component<<View>> {
+    BackgroundColor #DBEAFE
+    BorderColor #6366F1
+    FontColor #1E1B4B
+}
+skinparam component<<ViewModel>> {
+    BackgroundColor #C7D2FE
+    BorderColor #4F46E5
+    FontColor #1E1B4B
+}
+skinparam component<<UseCase>> {
+    BackgroundColor #A5F3FC
+    BorderColor #0891B2
+    FontColor #164E63
+}
+skinparam component<<Entity>> {
+    BackgroundColor #FDE68A
+    BorderColor #D97706
+    FontColor #78350F
+}
+skinparam component<<Infra>> {
+    BackgroundColor #E2E8F0
+    BorderColor #475569
+    FontColor #1E293B
+}
+skinparam component<<DataSource>> {
+    BackgroundColor #F1F5F9
+    BorderColor #64748B
+    FontColor #1E293B
+}
+
+skinparam interface<<Repository>> {
+    BackgroundColor #EDE9FE
+    BorderColor #7C3AED
+    FontColor #4C1D95
+}
+
+skinparam database<<Store>> {
+    BackgroundColor #ECFDF5
+    BorderColor #059669
+    FontColor #064E3B
+}
+
+skinparam folder {
+    BackgroundColor #FEF3C7
+    BorderColor #D97706
+    FontColor #78350F
+}
+
+package "1. Presentation Layer" #E0E7FF {
+    [AppNavigatorView] <<View>>
+    folder "Screens" {
+        [SplashScreen] <<View>>
+        [QRScannerScreen] <<View>>
+        [ActivationConfirmScreen] <<View>>
+        [TokenDisplayScreen] <<View>>
+        [HomeScreen] <<View>>
+        [SplashScreen] -[hidden]right- [QRScannerScreen]
+        [QRScannerScreen] -[hidden]right- [ActivationConfirmScreen]
+        [ActivationConfirmScreen] -[hidden]right- [TokenDisplayScreen]
+        [TokenDisplayScreen] -[hidden]right- [HomeScreen]
+    }
+    [AppNavigatorViewModel] <<ViewModel>>
+    [AppNavigatorView] -[hidden]right- "Screens"
+    "Screens" -[hidden]right- [AppNavigatorViewModel]
+
+    note bottom of "Screens"
+      AppNavigatorView が currentScreen に応じて描画を切り替える。
+      各画面のコールバックは AppNavigatorViewModel を操作する。
+    end note
+}
+
+package "2. Application Layer" #CFFAFE {
+    [Client UseCases] <<UseCase>>
+    [Backend UseCases] <<UseCase>>
+    [Qr UseCase] <<UseCase>>
+    [Client UseCases] -[hidden]right- [Backend UseCases]
+    [Backend UseCases] -[hidden]right- [Qr UseCase]
+}
+
+package "3. Domain Layer" #FFFBEB {
+    folder "Client Domain" {
+        [ClientInfo] <<Entity>>
+        interface "Client Repository" <<Repository>>
+        interface "Client Session Repository" <<Repository>>
+        [ClientInfo] -[hidden]right- "Client Repository"
+        "Client Repository" -[hidden]down- "Client Session Repository"
+    }
+    folder "Backend Domain" {
+        [BackendOption] <<Entity>>
+        interface "Backend Repository" <<Repository>>
+    }
+    "Client Domain" -[hidden]right- "Backend Domain"
+}
+
+package "4. Infrastructure Layer" #F1F5F9 {
+    [ClientRepositoryImpl] <<Infra>>
+    [ClientSessionRepositoryImpl] <<Infra>>
+    [BackendRepositoryImpl] <<Infra>>
+    [ClientRemoteDataSource] <<DataSource>>
+    [ClientSessionLocalDataSource] <<DataSource>>
+    [BackendLocalDataSource] <<DataSource>>
+    [DeepLinkDataSource] <<DataSource>>
+    [PlatformActionsDataSource] <<DataSource>>
+    database "Authorization API" as api <<Store>>
+    database "SharedPreferences" as prefs <<Store>>
+    database "OS (app_links / Clipboard / Share)" as osPlatform <<Store>>
+
+    [ClientRepositoryImpl] -[hidden]right- [ClientSessionRepositoryImpl]
+    [ClientSessionRepositoryImpl] -[hidden]right- [BackendRepositoryImpl]
+}
+
+[AppNavigatorView] -down-> [AppNavigatorViewModel] : watch
+
+[AppNavigatorViewModel] -down-> [Client UseCases]
+[AppNavigatorViewModel] -down-> [Backend UseCases]
+[AppNavigatorViewModel] -down-> [Qr UseCase]
+
+[Client UseCases] -down-> "Client Repository"
+[Client UseCases] -down-> "Client Session Repository"
+[Backend UseCases] -down-> "Backend Repository"
+
+' 下向きで「実装」を示す（backend.puml と同じ表現）
+"Client Repository" ..> [ClientRepositoryImpl] : implements
+"Client Session Repository" ..> [ClientSessionRepositoryImpl] : implements
+"Backend Repository" ..> [BackendRepositoryImpl] : implements
+
+[ClientRepositoryImpl] -down-> [ClientRemoteDataSource]
+[ClientSessionRepositoryImpl] -down-> [ClientSessionLocalDataSource]
+[BackendRepositoryImpl] -down-> [BackendLocalDataSource]
+
+[ClientRemoteDataSource] -down-> api
+[ClientSessionLocalDataSource] -down-> prefs
+[BackendLocalDataSource] -down-> prefs
+[DeepLinkDataSource] -down-> osPlatform
+[PlatformActionsDataSource] -down-> osPlatform
+
+' 意図的なレイヤー越え（純粋なプラットフォーム操作のため、UseCase/Repositoryを介さない）
+[AppNavigatorViewModel] -down-> [DeepLinkDataSource] : direct (no UseCase)
+[TokenDisplayScreen] -down-> [PlatformActionsDataSource] : direct (no ViewModel)
+
+note bottom of [DeepLinkDataSource]
+  ViewModelから直接参照する意図的な例外。
+  詳細は #24 を参照。
+end note
+
+note bottom of [PlatformActionsDataSource]
+  Viewから直接参照する意図的な例外。
+  詳細は #25 を参照。
+end note
+
+@enduml
