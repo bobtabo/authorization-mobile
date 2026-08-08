@@ -163,12 +163,15 @@ package "4. Infrastructure Layer" #F1F5F9 {
 
 note bottom of [DeepLinkDataSource]
   ViewModelから直接参照する意図的な例外。
-  詳細は #24 を参照。
+  AppLinksの薄いラップでビジネスロジックを
+  持たないため、UseCaseを介さない。
 end note
 
 note bottom of [PlatformActionsDataSource]
   Viewから直接参照する意図的な例外。
-  詳細は #25 を参照。
+  Clipboard/ShareはBuildContext依存の
+  位置計算をView側で行う必要があるため、
+  ViewModelを介さない。
 end note
 
 @enduml
