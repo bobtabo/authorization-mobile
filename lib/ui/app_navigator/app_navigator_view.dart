@@ -24,7 +24,9 @@ class AppNavigatorView extends ConsumerWidget {
 
     ref.listen(appNavigatorViewModelProvider, (previous, next) async {
       final message = next.errorMessage;
-      if (message == null) return;
+      // isLoadingなど他フィールドの変化でも本リスナーは呼ばれるため、
+      // errorMessage自体が変化した場合のみダイアログを出す（二重表示防止）。
+      if (message == null || message == previous?.errorMessage) return;
       await showDialog<void>(
         context: context,
         builder: (ctx) => AlertDialog(

@@ -32,5 +32,13 @@ void main() {
 
       expect(session, isNull);
     });
+
+    test('load returns null when only one key is stored', () async {
+      SharedPreferences.setMockInitialValues({'client_slug': 'php'});
+
+      final session = await ClientSessionLocalDataSource().load();
+
+      expect(session, isNull);
+    });
   });
 }

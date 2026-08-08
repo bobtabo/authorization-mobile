@@ -34,10 +34,11 @@ class _TokenDisplayScreenState extends ConsumerState<TokenDisplayScreen> {
   bool _copied = false;
   bool _showConfirmDialog = false;
 
-  void _handleCopy() async {
+  Future<void> _handleCopy() async {
     await ref
         .read(platformActionsDataSourceProvider)
         .copyToClipboard(widget.token);
+    if (!mounted) return;
     setState(() => _copied = true);
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) setState(() => _copied = false);

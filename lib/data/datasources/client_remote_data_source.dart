@@ -25,7 +25,8 @@ class ApiException implements Exception {
 /// バックエンドAPIとの通信を担うDataSource。
 class ClientRemoteDataSource {
   ClientRemoteDataSource({http.Client? client})
-    : _client = client ?? http.Client();
+    : _client = client ?? http.Client(),
+      _ownsClient = client == null;
 
   /// HTTP通信に使用するクライアント。
   ///
@@ -33,6 +34,10 @@ class ClientRemoteDataSource {
   /// `package:http/testing.dart` の `MockClient` をコンストラクタで渡すことで
   /// API応答をモックできる。差し替えは本番の呼び出し方には影響しない。
   final http.Client _client;
+
+  /// このインスタンスが `_client` を自ら生成したか（＝解放の責任を持つか）。
+  /// 外部から渡された場合は呼び出し元が管理するため閉じない。
+  final bool _ownsClient;
 
   static const _headers = {
     'Accept': 'application/json',
@@ -84,6 +89,11 @@ class ClientRemoteDataSource {
     _checkStatus(res);
   }
 
+  /// 自ら生成した [_client] を解放する。
+  void close() {
+    if (_ownsClient) _client.close();
+  }
+
   void _checkStatus(http.Response res) {
     if (res.statusCode != 200) {
       throw ApiException(res.statusCode, '${res.request?.url} ${res.body}');
@@ -101,5 +111,8 @@ class ClientRemoteDataSource {
 }
 
 @riverpod
-ClientRemoteDataSource clientRemoteDataSource(Ref ref) =>
-    ClientRemoteDataSource();
+ClientRemoteDataSource clientRemoteDataSource(Ref ref) {
+  final dataSource = ClientRemoteDataSource();
+  ref.onDispose(dataSource.close);
+  return dataSource;
+}

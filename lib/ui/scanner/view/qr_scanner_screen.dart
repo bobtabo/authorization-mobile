@@ -138,7 +138,11 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                                   controller: _controller,
                                   onDetect: _onDetect,
                                   errorBuilder: (context, error) =>
-                                      _SimulatorFallback(onScan: widget.onScan),
+                                      (kDebugMode || kDemoScanPreview)
+                                      ? _SimulatorFallback(
+                                          onScan: widget.onScan,
+                                        )
+                                      : const _CameraUnavailableFallback(),
                                 ),
                         ),
                       ),
@@ -273,6 +277,38 @@ class _SimulatorFallback extends StatelessWidget {
               label: const Text('テストスキャン'),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// 本番ビルドでカメラが利用できない場合のフォールバック。
+///
+/// [_SimulatorFallback] と異なり、QRコードの値を手動入力するボタンは持たない
+/// （実カメラを経由しない任意のクライアント起動を防ぐため）。
+class _CameraUnavailableFallback extends StatelessWidget {
+  const _CameraUnavailableFallback();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.black87,
+      child: const Center(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.videocam_off, color: Colors.white54, size: 48),
+              SizedBox(height: 12),
+              Text(
+                'カメラを利用できません。端末の設定でカメラへのアクセスを許可してください。',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.white70, fontSize: 14),
+              ),
+            ],
+          ),
         ),
       ),
     );

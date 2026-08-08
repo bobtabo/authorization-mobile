@@ -75,7 +75,7 @@
 | 用途 | パッケージ |
 |:---|:---|
 | 状態管理・DI | `flutter_riverpod` / `riverpod_annotation`（コード生成: `riverpod_generator`） |
-| Immutableなモデル定義 | `freezed`（コード生成: `freezed_annotation`） |
+| Immutableなモデル定義 | `freezed_annotation`（コード生成: `freezed`） |
 | QRスキャン | `mobile_scanner` |
 | ディープリンク（カスタムURLスキーム） | `app_links` |
 | HTTP通信 | `http` |
@@ -97,7 +97,7 @@ MVVM + Clean Architecture を採用し、以下の層構成になっています
 （[bobtabo/authorization](https://github.com/bobtabo/authorization) の
 `docs/architecture/backend.puml` と同じ配色・ステレオタイプ規約を踏襲）
 
-```
+```text
 lib/
 ├── ui/                  # Presentation層（View + ViewModel + State）
 │   ├── app_navigator/   #   ルートナビゲーション（画面遷移の起点）
@@ -133,7 +133,7 @@ lib/
 > [!IMPORTANT]
 > `freezed`/`riverpod_generator` によるコード生成（`*.freezed.dart` / `*.g.dart`）に依存しているため、
 > Entity・State・Provider を追加/変更した際は `dart run build_runner build --delete-conflicting-outputs`
-> の実行が必須です（[開発環境構築](#開発環境構築)を参照）。生成ファイルは `.gitignore` 対象のため、
+> の実行が必須です（[開発環境構築](#hammer_and_wrench-開発環境構築)を参照）。生成ファイルは `.gitignore` 対象のため、
 > `flutter pub get` 後にも一度実行してください。
 
 ---

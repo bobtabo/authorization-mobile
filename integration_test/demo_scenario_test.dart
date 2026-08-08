@@ -30,6 +30,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// デモ用モックデータ（バックエンド側デモの表示名・メールアドレスと揃える）。
 const _clientName = '株式会社デモテスト';
@@ -47,9 +48,15 @@ const _demoScanPreview = bool.fromEnvironment('DEMO_SCAN_PREVIEW');
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  setUp(() {
+  setUp(() async {
     // 実サーバーに繋がず、URL生成の assert（API_ID 未設定）を通すためのダミー設定。
     dotenv.testLoad(fileInput: 'BASE_URL=http://localhost:8080\nAPI_ID=demo');
+
+    // integration_test は実機/シミュレータ上で動くため、前回実行分のセッションが
+    // 端末に残っていると起動直後にホーム画面へ直行し、スプラッシュ画面の
+    // アサーションが失敗する。明示的にクリアしてから開始する。
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
   });
 
   testWidgets('デモシナリオ: QRスキャン〜ステータス確認（利用停止はしない）', (tester) async {

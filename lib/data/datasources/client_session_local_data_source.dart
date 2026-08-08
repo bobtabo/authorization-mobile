@@ -2,6 +2,7 @@
 //
 // Copyright (c) 2026 BobTabo. All Rights Reserved.
 
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -22,10 +23,19 @@ class ClientSessionLocalDataSource {
   }
 
   /// スラッグと識別子を保存する。
+  ///
+  /// 両方の書き込みが成功して初めて有効なセッションと見なす。片方でも失敗した
+  /// 場合、[load] が古いスラッグ/識別子と新しい方を組み合わせて返してしまわない
+  /// よう、保存済みのセッションを削除しておく。
   Future<void> save(String slug, String identifier) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_keySlug, slug);
-    await prefs.setString(_keyIdentifier, identifier);
+    final slugOk = await prefs.setString(_keySlug, slug);
+    final identifierOk = await prefs.setString(_keyIdentifier, identifier);
+    if (!slugOk || !identifierOk) {
+      debugPrint('[ClientSessionLocalDataSource] failed to save session');
+      await prefs.remove(_keySlug);
+      await prefs.remove(_keyIdentifier);
+    }
   }
 
   /// 保存済みセッションを削除する。

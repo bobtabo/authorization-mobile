@@ -2,6 +2,7 @@
 //
 // Copyright (c) 2026 BobTabo. All Rights Reserved.
 
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -28,7 +29,10 @@ class BackendLocalDataSource {
   /// 選択中バックエンドを保存する。
   Future<void> save(BackendOption backend) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_key, backend.slug);
+    final ok = await prefs.setString(_key, backend.slug);
+    if (!ok) {
+      debugPrint('[BackendLocalDataSource] failed to save selected backend');
+    }
   }
 }
 
