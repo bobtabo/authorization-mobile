@@ -1,6 +1,6 @@
-import 'package:authorization_mobile/config/backends.dart';
-import 'package:authorization_mobile/models/client_info.dart';
-import 'package:authorization_mobile/screens/home_screen.dart';
+import 'package:authorization_mobile/core/config/backends.dart';
+import 'package:authorization_mobile/domain/entities/client_info.dart';
+import 'package:authorization_mobile/ui/home/view/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

@@ -1,0 +1,41 @@
+// This is a program developed by BobTabo.
+//
+// Copyright (c) 2026 BobTabo. All Rights Reserved.
+
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+import 'backends.dart';
+
+/// アプリ全体の設定値とURL生成を管理するクラス。
+class AppConfig {
+  static String get _gatewayUrl =>
+      dotenv.env['BASE_URL'] ?? 'http://localhost:8080';
+
+  static String get _apiId {
+    final id = dotenv.env['API_ID'];
+    assert(
+      id != null && id != '{api-id}',
+      'API_ID が未設定です。scripts/update-env.sh を実行してください。',
+    );
+    return id ?? '{api-id}';
+  }
+
+  /// 指定スラッグのAPIベースURLを返す。
+  static String apiBase(String slug) =>
+      '$_gatewayUrl/restapis/$_apiId/local/_user_request_/function/$slug/api';
+
+  /// デフォルトバックエンドのAPIベースURLを返す。
+  static String defaultApiBase() => apiBase(kDefaultBackend.slug);
+
+  /// クライアント情報取得エンドポイントのURLを返す。
+  static String clientInfoUrl(String slug, String identifier) =>
+      '${apiBase(slug)}/clients/$identifier/info';
+
+  /// 利用開始エンドポイントのURLを返す。
+  static String clientStartUrl(String slug, String identifier) =>
+      '${apiBase(slug)}/clients/$identifier/start';
+
+  /// 利用停止エンドポイントのURLを返す。
+  static String clientStopUrl(String slug, String identifier) =>
+      '${apiBase(slug)}/clients/$identifier/stop';
+}

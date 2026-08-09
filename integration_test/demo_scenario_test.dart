@@ -20,15 +20,17 @@
 
 import 'dart:convert';
 
+import 'package:authorization_mobile/app.dart';
+import 'package:authorization_mobile/data/datasources/client_remote_data_source.dart';
 import 'package:authorization_mobile/demo/tap_indicator.dart';
-import 'package:authorization_mobile/main.dart';
-import 'package:authorization_mobile/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// デモ用モックデータ（バックエンド側デモの表示名・メールアドレスと揃える）。
 const _clientName = '株式会社デモテスト';
@@ -46,12 +48,20 @@ const _demoScanPreview = bool.fromEnvironment('DEMO_SCAN_PREVIEW');
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  setUp(() {
+  setUp(() async {
     // 実サーバーに繋がず、URL生成の assert（API_ID 未設定）を通すためのダミー設定。
     dotenv.testLoad(fileInput: 'BASE_URL=http://localhost:8080\nAPI_ID=demo');
 
+    // integration_test は実機/シミュレータ上で動くため、前回実行分のセッションが
+    // 端末に残っていると起動直後にホーム画面へ直行し、スプラッシュ画面の
+    // アサーションが失敗する。明示的にクリアしてから開始する。
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+  });
+
+  testWidgets('デモシナリオ: QRスキャン〜ステータス確認（利用停止はしない）', (tester) async {
     // API応答はすべてモック。fetchClientInfo と activateClient の2つで足りる。
-    ApiService.client = MockClient((request) async {
+    final mockClient = MockClient((request) async {
       final path = request.url.path;
       final headers = {'content-type': 'application/json'};
       if (path.endsWith('/info')) {
@@ -75,14 +85,17 @@ void main() {
       }
       return http.Response('unexpected request: $path', 404);
     });
-  });
 
-  tearDown(() {
-    ApiService.client = http.Client();
-  });
-
-  testWidgets('デモシナリオ: QRスキャン〜ステータス確認（利用停止はしない）', (tester) async {
-    await tester.pumpWidget(const AuthorizationGatewayApp());
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          clientRemoteDataSourceProvider.overrideWithValue(
+            ClientRemoteDataSource(client: mockClient),
+          ),
+        ],
+        child: const AuthorizationGatewayApp(),
+      ),
+    );
     // 録画スクリプトへの合図。`flutter test` の "+0: " という汎用マーカーは
     // ホスト側のテストランナーが開始したことを示すだけで、実機/エミュレータの
     // 画面に実際にフレームが描画されたことまでは保証しない（録画開始が早すぎて

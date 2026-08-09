@@ -30,6 +30,7 @@
 - [デモ](#デモ)
 - [画面構成](#画面構成)
 - [技術スタック](#技術スタック)
+- [アーキテクチャ](#triangular_ruler-アーキテクチャ)
 - [開発環境構築](#開発環境構築)
   - [前提](#前提)
   - [セットアップ](#セットアップ)
@@ -73,6 +74,8 @@
 
 | 用途 | パッケージ |
 |:---|:---|
+| 状態管理・DI | `flutter_riverpod` / `riverpod_annotation`（コード生成: `riverpod_generator`） |
+| Immutableなモデル定義 | `freezed_annotation`（コード生成: `freezed`） |
 | QRスキャン | `mobile_scanner` |
 | ディープリンク（カスタムURLスキーム） | `app_links` |
 | HTTP通信 | `http` |
@@ -81,6 +84,57 @@
 | シェア | `share_plus` |
 | 環境設定 | `flutter_dotenv` |
 | 永続化 | `shared_preferences` |
+
+---
+
+## :triangular_ruler: アーキテクチャ
+
+MVVM + Clean Architecture を採用し、以下の層構成になっています。データは
+`View → ViewModel → UseCase → Repository → DataSource` の一方向（UDF: 単一方向
+データフロー）で流れます。
+
+構成図（PlantUML）: [`docs/architecture/mobile.puml`](docs/architecture/mobile.puml)
+（[bobtabo/authorization](https://github.com/bobtabo/authorization) の
+`docs/architecture/backend.puml` と同じ配色・ステレオタイプ規約を踏襲）
+
+```text
+lib/
+├── ui/                  # Presentation層（View + ViewModel + State）
+│   ├── app_navigator/   #   ルートナビゲーション（画面遷移の起点）
+│   ├── splash/ scanner/ activation_confirm/ token_display/ home/
+│   │                    #   各画面のView（ロジックを持たず、コールバック経由でのみ通信）
+│   └── widgets/         #   複数画面から使う共有ウィジェット
+├── domain/              # Domain層（Flutter非依存の純粋なビジネスロジック）
+│   ├── entities/        #   Entity（freezed製のImmutableなデータクラス）
+│   ├── repositories/    #   Repositoryインターフェース
+│   └── usecases/        #   UseCase（Repositoryを組み合わせた1操作単位のロジック）
+├── data/                # Data層（外部境界の実装）
+│   ├── datasources/     #   DataSource（HTTP通信・SharedPreferences・プラットフォームSDK等）
+│   └── repositories/    #   Repository実装（DataSourceを呼び出し、例外をResult型に変換）
+├── core/                # 全層から参照される共通基盤
+│   ├── config/          #   環境設定・接続先バックエンド一覧
+│   ├── errors/          #   AppException（エラー種別の基底クラス）
+│   └── result.dart      #   Result<T>（Repository境界での成功/失敗を表す型）
+├── app.dart             # ルートWidget（MaterialApp）
+└── main.dart            # bootstrapのみ（dotenv読み込み・ProviderScopeでのrunApp）
+```
+
+各層の役割:
+
+| 層 | 役割 |
+|:---|:---|
+| **View** | 画面の見た目のみを担当。`ConsumerWidget`/`ConsumerStatefulWidget` として ViewModel の状態を購読し、操作をコールバックで ViewModel に伝える。 |
+| **ViewModel** | `@riverpod class` として実装。操作(Event) を受けて UseCase を呼び出し、結果を State に反映する。UIへの副作用（ダイアログ表示等）は行わず、`state.errorMessage` 等にセットするのみ。 |
+| **State** | `freezed` の Immutable なデータクラス。ViewModel が保持する状態そのもの。 |
+| **UseCase** | 1つの操作単位のビジネスロジック。1つ以上の Repository を呼び出す。Flutter に依存しないため、Flutter非依存のユニットテストで検証できる。 |
+| **Repository** | Domain層で定義したインターフェースの実装。DataSource を呼び出し、例外を `Result<T>`（`Ok`/`Err`）や `AppException` に変換する。 |
+| **DataSource** | 実際の外部境界（HTTP通信・`SharedPreferences`・`Clipboard`/`Share` 等のプラットフォームSDK）を直接呼び出す。 |
+
+> [!IMPORTANT]
+> `freezed`/`riverpod_generator` によるコード生成（`*.freezed.dart` / `*.g.dart`）に依存しているため、
+> Entity・State・Provider を追加/変更した際は `dart run build_runner build --delete-conflicting-outputs`
+> の実行が必須です（[開発環境構築](#hammer_and_wrench-開発環境構築)を参照）。生成ファイルは `.gitignore` 対象のため、
+> `flutter pub get` 後にも一度実行してください。
 
 ---
 
@@ -105,6 +159,9 @@ cd authorization-mobile
 # 環境設定ファイルを作成
 cp .env.example .env
 flutter pub get
+
+# freezed/riverpod_generator によるコード生成（*.freezed.dart / *.g.dart）を実行
+dart run build_runner build --delete-conflicting-outputs
 
 # 認可サーバーで tflocal apply 完了後に実行して API_ID を自動設定
 bash scripts/update-env.sh
