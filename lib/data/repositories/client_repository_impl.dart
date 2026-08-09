@@ -2,6 +2,9 @@
 //
 // Copyright (c) 2026 BobTabo. All Rights Reserved.
 
+import 'dart:async';
+
+import 'package:http/http.dart' as http;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../core/errors/app_exception.dart';
@@ -39,8 +42,13 @@ class ClientRepositoryImpl implements ClientRepository {
       return Ok(await body());
     } on ApiException catch (e) {
       return Err(ApiFailure(e.statusCode, e.message));
-    } catch (_) {
+    } on TimeoutException {
       return const Err(NetworkException());
+    } on http.ClientException {
+      return const Err(NetworkException());
+    } catch (_) {
+      // レスポンスのJSON解析失敗など、通信自体は成立したが想定外だった場合。
+      return const Err(UnknownException());
     }
   }
 }

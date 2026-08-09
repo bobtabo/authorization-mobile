@@ -61,12 +61,12 @@ void main() {
   );
 
   test(
-    'activateClient converts non-ApiException failures to Err(NetworkException)',
+    'activateClient converts a transport failure to Err(NetworkException)',
     () async {
       final repository = ClientRepositoryImpl(
         ClientRemoteDataSource(
           client: MockClient(
-            (request) async => throw Exception('socket closed'),
+            (request) async => throw http.ClientException('socket closed'),
           ),
         ),
       );
@@ -75,6 +75,24 @@ void main() {
 
       expect(result, isA<Err<String>>());
       expect((result as Err<String>).error, isA<NetworkException>());
+    },
+  );
+
+  test(
+    'activateClient converts an unexpected failure to Err(UnknownException)',
+    () async {
+      final repository = ClientRepositoryImpl(
+        ClientRemoteDataSource(
+          client: MockClient(
+            (request) async => throw const FormatException('invalid json'),
+          ),
+        ),
+      );
+
+      final result = await repository.activateClient('php', 'client_001');
+
+      expect(result, isA<Err<String>>());
+      expect((result as Err<String>).error, isA<UnknownException>());
     },
   );
 

@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:authorization_mobile/data/datasources/client_remote_data_source.dart';
 import 'package:authorization_mobile/domain/entities/client_info.dart';
+import 'package:fake_async/fake_async.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -17,6 +19,16 @@ void main() {
   ) {
     return ClientRemoteDataSource(
       client: MockClient((request) async => handler(request)),
+    );
+  }
+
+  /// レスポンスが (タイムアウト時間より長く) 帰ってこないバックエンドを模倣する。
+  ClientRemoteDataSource buildHangingDataSource() {
+    return ClientRemoteDataSource(
+      client: MockClient((request) async {
+        await Future<void>.delayed(const Duration(seconds: 30));
+        return http.Response('', 200);
+      }),
     );
   }
 
@@ -81,6 +93,25 @@ void main() {
         ),
       );
     });
+
+    test('throws TimeoutException when the backend never responds', () {
+      fakeAsync((async) {
+        final dataSource = buildHangingDataSource();
+        Object? error;
+        dataSource.fetchClientInfo('php', 'client_001').catchError((e) {
+          error = e;
+          return const ClientInfo(
+            name: '',
+            identifier: '',
+            status: ClientStatus.preparing,
+          );
+        });
+
+        async.elapse(const Duration(seconds: 16));
+
+        expect(error, isA<TimeoutException>());
+      });
+    });
   });
 
   group('activateClient', () {
@@ -107,6 +138,21 @@ void main() {
         ),
       );
     });
+
+    test('throws TimeoutException when the backend never responds', () {
+      fakeAsync((async) {
+        final dataSource = buildHangingDataSource();
+        Object? error;
+        dataSource.activateClient('php', 'client_001').catchError((e) {
+          error = e;
+          return '';
+        });
+
+        async.elapse(const Duration(seconds: 16));
+
+        expect(error, isA<TimeoutException>());
+      });
+    });
   });
 
   group('stopClient', () {
@@ -130,6 +176,20 @@ void main() {
           isA<ApiException>().having((e) => e.statusCode, 'statusCode', 403),
         ),
       );
+    });
+
+    test('throws TimeoutException when the backend never responds', () {
+      fakeAsync((async) {
+        final dataSource = buildHangingDataSource();
+        Object? error;
+        dataSource.stopClient('php', 'client_001').catchError((e) {
+          error = e;
+        });
+
+        async.elapse(const Duration(seconds: 16));
+
+        expect(error, isA<TimeoutException>());
+      });
     });
   });
 
@@ -157,6 +217,20 @@ void main() {
           isA<ApiException>().having((e) => e.statusCode, 'statusCode', 500),
         ),
       );
+    });
+
+    test('throws TimeoutException when the backend never responds', () {
+      fakeAsync((async) {
+        final dataSource = buildHangingDataSource();
+        Object? error;
+        dataSource.resumeClient('php', 'client_001').catchError((e) {
+          error = e;
+        });
+
+        async.elapse(const Duration(seconds: 16));
+
+        expect(error, isA<TimeoutException>());
+      });
     });
   });
 }

@@ -95,16 +95,21 @@ class AppNavigatorViewModel extends _$AppNavigatorViewModel {
   }
 
   Future<void> _initDeepLinks() async {
+    // getInitialLink() の待機中に届いたリンクを取りこぼさないよう、
+    // ストリーム購読を先に行ってから初期リンクを取得する。
+    Uri? initialUri;
+    _linkSubscription = _deepLinkDataSource.uriLinkStream.listen((uri) {
+      // 起動直後、初期リンクと同一のURIがストリームにも流れてくる環境がある
+      // ため、初期リンク分は二重処理しない。
+      if (uri == initialUri) return;
+      handleDeepLink(uri);
+    });
+
     // アプリ起動時に受け取ったリンクを処理（アプリが終了していた場合）
-    final initialUri = await _deepLinkDataSource.getInitialLink();
+    initialUri = await _deepLinkDataSource.getInitialLink();
     if (initialUri != null) {
       await handleDeepLink(initialUri);
     }
-
-    // アプリ起動中に受け取ったリンクを処理
-    _linkSubscription = _deepLinkDataSource.uriLinkStream.listen((uri) {
-      handleDeepLink(uri);
-    });
   }
 
   Future<void> handleDeepLink(Uri uri) async {

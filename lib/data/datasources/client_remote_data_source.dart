@@ -44,12 +44,18 @@ class ClientRemoteDataSource {
     'Content-Type': 'application/json',
   };
 
+  /// 各リクエストの上限時間。バックエンドが応答不能な場合に無期限で
+  /// ローディング状態のままにならないようにする。
+  static const _timeout = Duration(seconds: 15);
+
   /// クライアント情報をAPIから取得する。
   Future<ClientInfo> fetchClientInfo(String slug, String identifier) async {
-    final res = await _client.get(
-      Uri.parse(AppConfig.clientInfoUrl(slug, identifier)),
-      headers: _headers,
-    );
+    final res = await _client
+        .get(
+          Uri.parse(AppConfig.clientInfoUrl(slug, identifier)),
+          headers: _headers,
+        )
+        .timeout(_timeout);
     _checkStatus(res);
     final json = jsonDecode(res.body) as Map<String, dynamic>;
     return ClientInfo(
@@ -62,10 +68,12 @@ class ClientRemoteDataSource {
 
   /// 利用開始APIを呼び出し、アクセストークンを返す。
   Future<String> activateClient(String slug, String identifier) async {
-    final res = await _client.patch(
-      Uri.parse(AppConfig.clientStartUrl(slug, identifier)),
-      headers: _headers,
-    );
+    final res = await _client
+        .patch(
+          Uri.parse(AppConfig.clientStartUrl(slug, identifier)),
+          headers: _headers,
+        )
+        .timeout(_timeout);
     _checkStatus(res);
     final json = jsonDecode(res.body) as Map<String, dynamic>;
     return json['access_token'] as String;
@@ -73,19 +81,23 @@ class ClientRemoteDataSource {
 
   /// 利用停止APIを呼び出す。
   Future<void> stopClient(String slug, String identifier) async {
-    final res = await _client.patch(
-      Uri.parse(AppConfig.clientStopUrl(slug, identifier)),
-      headers: _headers,
-    );
+    final res = await _client
+        .patch(
+          Uri.parse(AppConfig.clientStopUrl(slug, identifier)),
+          headers: _headers,
+        )
+        .timeout(_timeout);
     _checkStatus(res);
   }
 
   /// 利用再開APIを呼び出す。
   Future<void> resumeClient(String slug, String identifier) async {
-    final res = await _client.patch(
-      Uri.parse(AppConfig.clientStartUrl(slug, identifier)),
-      headers: _headers,
-    );
+    final res = await _client
+        .patch(
+          Uri.parse(AppConfig.clientStartUrl(slug, identifier)),
+          headers: _headers,
+        )
+        .timeout(_timeout);
     _checkStatus(res);
   }
 
