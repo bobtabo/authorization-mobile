@@ -19,9 +19,10 @@ build/
 *.iws
 .vscode/
 
-# Claude Code（プロジェクト共有設定 settings.json のみ管理対象）
+# Claude Code（プロジェクト共有設定 settings.json、Skillsのみ管理対象）
 .claude/*
 !.claude/settings.json
+!.claude/skills/
 
 # 環境設定（.env.example は管理対象）
 .env
