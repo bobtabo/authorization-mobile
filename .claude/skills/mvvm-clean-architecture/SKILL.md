@@ -9,7 +9,7 @@ description: authorization-mobile のレイヤー構成（View→ViewModel→Use
 
 ## 1. レイヤー構成と依存方向
 
-```
+```text
 View → ViewModel → UseCase → Repository(interface) → RepositoryImpl → DataSource
 ```
 
@@ -26,7 +26,7 @@ View → ViewModel → UseCase → Repository(interface) → RepositoryImpl → 
 
 ## 2. ディレクトリ構造の例
 
-```
+```text
 lib/
   core/
     result.dart

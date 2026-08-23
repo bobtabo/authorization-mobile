@@ -24,6 +24,11 @@ PRを作成した後、マージ可能な状態になるまで以下の手順で
 
 ### 3-1. CI完了を待つ
 
+**前提（重要）**: `.github/workflows/ci.yml` は `pull_request: branches: [main]` かつ `push: branches-ignore: ['feature/issue-*']` の構成になっている。そのため `feature/issue-<Issue番号>` → `develop` という通常のIssue対応PRでは、**GitHub ActionsのCIはPR上で一度も実行されない**（`develop` へのマージ後、pushトリガーで初めて実行される）。CIが実際にPR上で実行されるのは `develop` → `main` のリリースPR（2章）の場合のみ。この前提差をこの章の手順に反映せず「CIを待つ」とだけ書くと、通常のIssue対応PRでは待っても何も現れず手順が成立しない。
+
+- 通常のIssue対応PR（`feature/issue-N` → `develop`）: PR上のCIチェックは存在しない。代わりに、PR作成前にローカルで `dart format --set-exit-if-changed .` / `flutter analyze` / `flutter test` がすべて通ることを確認しておく（これが実質的なゲート）。
+- リリースPR（`develop` → `main`）: 以下の通りPR上のCI完了を待つ。
+
 固定の `sleep` でブロックしない。バックグラウンド実行かポーリングで、全チェックが完了するまで待つ。
 
 ```bash
@@ -40,19 +45,28 @@ gh pr checks $PR_NUMBER --repo bobtabo/authorization-mobile
 
 ### 3-2. 未返信のCodeRabbitコメントを抽出する
 
-`coderabbitai[bot]` が投稿したtop-levelレビューコメントのうち、人間からの返信がまだ付いていないものを確認する。
+CodeRabbitのコメントは2種類の経路で付く。どちらも確認する。
 
-```bash
-gh pr view $PR_NUMBER --repo bobtabo/authorization-mobile --json comments,reviews \
-  --jq '.reviews[] | select(.author.login == "coderabbitai") | {submittedAt, state}'
-```
+1. **レビュー本文にまとめられたコメント**（GitHubへのインラインコメント投稿が失敗した場合に本文へ集約される。実際にこのリポジトリで繰り返し発生している）。CodeRabbitのレビューは `author.login` が `coderabbitai`（`[bot]` サフィックスは付かない。`gh pr view --json reviews/comments` で実際に確認済み）。
 
-上記でレビュー本文を取得したら、本文中の「Actionable comments」「Outside diff range comments」「Nitpick comments」の各項目を1件ずつ確認する。JSON本文をシェルへ直接パイプで渡すと本文中のバッククォートやダブルクォートのエスケープが原因で `jq` がパースエラーになることがあるため、`--jq` フィルタで必要なフィールドだけを抽出するか、いったんファイルに保存してから `jq` にかける。
+   ```bash
+   gh pr view $PR_NUMBER --repo bobtabo/authorization-mobile --json reviews \
+     --jq '[.reviews[] | select(.author.login == "coderabbitai")] | last | .body' \
+     > /tmp/coderabbit_latest_review.txt
+   ```
 
-```bash
-gh pr view $PR_NUMBER --repo bobtabo/authorization-mobile --json reviews \
-  --jq '.reviews[-1].body' > /tmp/coderabbit_latest_review.txt
-```
+   `.reviews[-1]` のように単純に「最後のレビュー」を取ると、間に人間のレビューが挟まった場合にCodeRabbit以外のレビューを拾ってしまう。必ず `author.login == "coderabbitai"` で絞り込んでから最後の1件を取る。
+
+   本文を取得したら、「Actionable comments」「Outside diff range comments」「Nitpick comments」の各項目を1件ずつ確認する。JSON本文をシェルへ直接パイプで渡すと本文中のバッククォートやダブルクォートのエスケープが原因で `jq` がパースエラーになることがあるため、`--jq` フィルタで必要なフィールドだけを抽出するか、いったんファイルに保存してから `jq` にかける（上記コマンドはファイル出力済み）。
+
+2. **行に直接付いたインラインコメント**（投稿が成功した場合。1と両方存在することもある）。`pulls/comments` エンドポイントから取得し、他のどのコメントの `in_reply_to_id` にもなっていない（＝誰も返信していない）ものが未対応。
+
+   ```bash
+   gh api repos/bobtabo/authorization-mobile/pulls/$PR_NUMBER/comments \
+     --jq '[.[] | select(.user.login == "coderabbitai")]' > /tmp/coderabbit_inline_comments.json
+   ```
+
+   取得したコメントの `id` の集合と、全コメントの `in_reply_to_id` の集合を突き合わせ、`in_reply_to_id` として一度も参照されていない `id` のコメントが未返信。
 
 ### 3-3. 指摘を検証し、修正して返信する
 
