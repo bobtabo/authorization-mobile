@@ -59,14 +59,23 @@ CodeRabbitのコメントは2種類の経路で付く。どちらも確認する
 
    本文を取得したら、「Actionable comments」「Outside diff range comments」「Nitpick comments」の各項目を1件ずつ確認する。JSON本文をシェルへ直接パイプで渡すと本文中のバッククォートやダブルクォートのエスケープが原因で `jq` がパースエラーになることがあるため、`--jq` フィルタで必要なフィールドだけを抽出するか、いったんファイルに保存してから `jq` にかける（上記コマンドはファイル出力済み）。
 
-2. **行に直接付いたインラインコメント**（投稿が成功した場合。1と両方存在することもある）。`pulls/comments` エンドポイントから取得し、他のどのコメントの `in_reply_to_id` にもなっていない（＝誰も返信していない）ものが未対応。
+2. **行に直接付いたインラインコメント**（投稿が成功した場合。1と両方存在することもある）。`pulls/comments` エンドポイントから一覧を取得する。
+
+   **注意**: このエンドポイントは `gh api`（REST API）で直接叩くため、`gh pr view --json`（GraphQL経由、ログイン名から `[bot]` サフィックスが除かれる）とは異なり、ボットのユーザー名に `[bot]` サフィックスが付く（`coderabbitai[bot]`。実データで確認済み）。また一覧系エンドポイントは既定で1ページ目（最大30件）しか返らないため `--paginate` を付ける。`--paginate` は `--jq` と併用する場合 `--slurp` を同時指定できない（実行して確認済みのエラー）ため、`--jq` 側は配列でまとめず `.[] | ...` の形で1件ずつ出力し、ページをまたいで結果を連結する。
 
    ```bash
-   gh api repos/bobtabo/authorization-mobile/pulls/$PR_NUMBER/comments \
-     --jq '[.[] | select(.user.login == "coderabbitai")]' > /tmp/coderabbit_inline_comments.json
+   gh api --paginate repos/bobtabo/authorization-mobile/pulls/$PR_NUMBER/comments \
+     --jq '.[] | select(.user.login == "coderabbitai[bot]") | .id' > /tmp/coderabbit_comment_ids.txt
    ```
 
-   取得したコメントの `id` の集合と、全コメントの `in_reply_to_id` の集合を突き合わせ、`in_reply_to_id` として一度も参照されていない `id` のコメントが未返信。
+   **`in_reply_to_id` による未返信判定の限界**: 理屈の上では、全コメントの `in_reply_to_id` の集合を取り、上記のCodeRabbitコメントIDのうち集合に含まれないものが「誰からもスレッド内で返信されていない」コメントになる。
+
+   ```bash
+   gh api --paginate repos/bobtabo/authorization-mobile/pulls/$PR_NUMBER/comments \
+     --jq '.[] | .in_reply_to_id | select(. != null)' > /tmp/all_reply_to_ids.txt
+   ```
+
+   ただし、このリポジトリの実際の運用（3-3参照）はインラインコメントへのスレッド返信ではなく、**PRへのトップレベルコメント1件で対応内容をまとめて返信する**方式であるため、上記の突き合わせをすると実際には対応済みのコメントも「未返信」として検出される（実際に検証済み）。したがって、この差分（`coderabbit_comment_ids.txt` の一覧）は「見落としがないかの確認用リスト」として使い、実際に対応済みかどうかは3-3のトップレベル返信コメントの内容と突き合わせて人間/Claude Codeが判断する。未対応かどうかの最終判定は本節の差分ではなく、3-5の収束条件（新規actionable 0件 かつ mergeable/mergeStateStatusがCLEAN）で行う。
 
 ### 3-3. 指摘を検証し、修正して返信する
 
