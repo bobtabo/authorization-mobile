@@ -1,7 +1,7 @@
+import 'package:authorization_mobile/core/config/backends.dart';
+import 'package:authorization_mobile/ui/splash/view/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:authorization_mobile/config/backends.dart';
-import 'package:authorization_mobile/screens/splash_screen.dart';
 
 void main() {
   // SplashScreen has a repeat animation (_floatController) so pumpAndSettle

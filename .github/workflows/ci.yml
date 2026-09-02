@@ -33,6 +33,10 @@ jobs:
       # 依存パッケージをインストール
       - run: flutter pub get
 
+      # コード生成（riverpod_generator / freezed）
+      - name: Generate code (build_runner)
+        run: dart run build_runner build --delete-conflicting-outputs
+
       # コードフォーマットチェック（未フォーマットのコードはCIを失敗させる）
       - run: dart format --set-exit-if-changed .
 
@@ -70,6 +74,10 @@ jobs:
       # 依存パッケージをインストール
       - run: flutter pub get
 
+      # コード生成（riverpod_generator / freezed）
+      - name: Generate code (build_runner)
+        run: dart run build_runner build --delete-conflicting-outputs
+
       # Android APK をデバッグビルド
       - run: flutter build apk --debug
 
@@ -94,6 +102,10 @@ jobs:
 
       # 依存パッケージをインストール
       - run: flutter pub get
+
+      # コード生成（riverpod_generator / freezed）
+      - name: Generate code (build_runner)
+        run: dart run build_runner build --delete-conflicting-outputs
 
       # iOS アプリをデバッグビルド（コード署名なし）
       - run: flutter build ios --no-codesign --debug
